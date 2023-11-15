@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'extentions',
     'userAccount.apps.UseraccountConfig',
+    'otp.apps.OtpConfig',
 ]
 
 MIDDLEWARE = [
