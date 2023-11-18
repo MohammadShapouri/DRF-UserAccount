@@ -1,1 +1,60 @@
-# DRF-UserAccount
+
+# Django Rest Framework User Account Manager
+
+A user account management system based on the phone number validation in django rest framework.
+
+
+## Features
+* A customizable OTP module for generating and verifing OTP codes and OTP configs.
+* A class for generation and validating OTP configs
+* Creating, retriving, updating and deleting user account.
+* Sends OTP code for validating new accounts.
+* Sends OTP code for validating new phone numbers if phone number was changed during update.
+
+
+
+## Installation
+__If you use windows, instead of using '_python3 -m_', use '_python_' in commands.__
+* Run the following command in your teminal to clone this project or download it directly.
+    ```
+    $ git clone git@github.com:MohammadShapouri/DRF-UserAccount.git
+    ```
+
+* Navigate to the project folder.
+
+* Run the following command to create virtualenv. (If you haven't install virtualenv package, you need to install virtualenv package first).
+    ```
+    $ python3 -m virtualenv venv
+    ```
+
+
+* Activate virtualenv.
+    > run the following command in linux
+    ```
+    $ source venv/bin/activate
+    ```
+    > run the following command in windows
+    ```
+    $ source venv/Scripts/activate
+    ```
+
+
+* Run the following command to install required frameworks and packages.
+    ```
+    $ pip install -r requirements.txt
+    ```
+
+* run the following command in the folder which contains manage.py file to run the project.
+    ```
+    $ python3 -m manage.py makemigrations
+    $ python3 -m manage.py migrate
+    $ python3 -m manage.py runserver
+    ```
+
+
+# Things to do in future
+* Dockerizing project. (Though it must be Dockerized after creating project.)
+* Adding api for sending sms.
+* Writing test cases.
+* Adding change password and reset password view. 
+
