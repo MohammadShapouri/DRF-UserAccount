@@ -68,7 +68,7 @@ class UserAccountCreationSerializer(serializers.ModelSerializer):
 
 
 
-class UserAccountUpdationSerializer(serializers.ModelSerializer):
+class UserAccountUpdateSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['pk'].read_only = True

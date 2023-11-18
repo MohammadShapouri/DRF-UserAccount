@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 from .models import UserAccount
 from .permissions import ISOwnerOrAdmin
-from .serializers import UserAccountCreationSerializer, UserAccountUpdationSerializer, UserAccountRetrivalSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserAccountDeletionSerializer
+from .serializers import UserAccountCreationSerializer, UserAccountUpdaterializer, UserAccountRetrivalSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserAccountDeletionSerializer
 from django.db.models import Q
 from .userAccountOTPManager import UserAccountOTPManager, UserAccountVerificationOTPManager, UserAccountNewPhoneNumberVerificationOTPManager
 from rest_framework.response import Response
@@ -37,7 +37,7 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
         if self.request.method == 'GET':
             return UserAccountRetrivalSerializer
         elif self.request.method == 'PUT' or self.request.method == 'PATCH':
-            return UserAccountUpdationSerializer
+            return UserAccountUpdateSerializer
         elif self.request.method == 'POST':
             return UserAccountCreationSerializer
         elif self.request.method == 'DELETE':
