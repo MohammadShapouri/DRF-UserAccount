@@ -29,11 +29,11 @@ __If you use windows, instead of using '_python3 -m_', use '_python_' in command
 
 
 * Activate virtualenv.
-    > run the following command in linux
+    > Run the following command in linux
     ```
     $ source venv/bin/activate
     ```
-    > run the following command in windows
+    > Run the following command in windows
     ```
     $ source venv/Scripts/activate
     ```
@@ -44,7 +44,7 @@ __If you use windows, instead of using '_python3 -m_', use '_python_' in command
     $ pip install -r requirements.txt
     ```
 
-* run the following command in the folder which contains manage.py file to run the project.
+* Run the following commands one by one in the folder which contains manage.py file to run the project.
     ```
     $ python3 -m manage.py makemigrations
     $ python3 -m manage.py migrate
