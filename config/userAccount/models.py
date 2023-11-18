@@ -43,6 +43,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, first_name, phone_number, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_account_verified", True)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
@@ -63,7 +64,7 @@ class UserAccount(AbstractUser):
     phone_number            = models.CharField(max_length=11, verbose_name='Phone Number',unique=True, blank=False, null=False, validators=[phoneNumberValidator])
     email                   = models.EmailField(unique=True, blank=False, null=False, verbose_name='Email')
     is_account_verified     = models.BooleanField(default=False, verbose_name='Is Account Verified?')
-    new_phone_number        = models.CharField(max_length=11, verbose_name='Phone Number', blank=True, null=True, validators=[phoneNumberValidator])
+    new_phone_number        = models.CharField(max_length=11, verbose_name='New Unverified Phone Number', blank=True, null=True, validators=[phoneNumberValidator])
     is_new_phone_verified   = models.BooleanField(default=True, verbose_name='Is New Phone Number Verified?')
 
 
