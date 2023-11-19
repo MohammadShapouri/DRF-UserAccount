@@ -6,8 +6,9 @@ A user account management system based on the phone number validation in django 
 
 ## Features
 * A customizable OTP module for generating and verifing OTP codes and OTP configs.
-* A class for generation and validating OTP configs
+* A module for generation and validating OTP configs.
 * Creating, retriving, updating and deleting user account.
+* Different access level and responses based on the user account type which sends request.
 * Sends OTP code for validating new accounts.
 * Sends OTP code for validating new phone numbers if phone number was changed during update.
 
