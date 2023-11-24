@@ -8,7 +8,26 @@ from django.db.models import Q
 from .userAccountOTPManager import UserAccountOTPManager, UserAccountVerificationOTPManager, UserAccountNewPhoneNumberVerificationOTPManager
 from rest_framework.response import Response
 from rest_framework import status
+from .models import UserAccount
+from .permissions import ISOwnerOrAdmin, IsOwner
+from django.db.models import Q
 from otp.views import VerifyUserAccountVerificationOTPView, VerifyNewPhoneNumberVerificationOTPView
+from .userAccountOTPManager import (
+                                    UserAccountOTPManager,
+                                    UserAccountVerificationOTPManager,
+                                    UserAccountNewPhoneNumberVerificationOTPManager,
+                                    ResetPasswordOTPManager
+                                    )
+from .serializers import (
+                        UserAccountCreationSerializer,
+                        UserAccountUpdateSerializer,
+                        UserAccountRetrivalSerializer,
+                        UserAccountDeletionSerializer,
+                        ChangePasswordSerializer,
+                        ResetPasswordSerializer,
+                        RequestResetPasswordOTPSerializer,
+                        verifyResetPasswordOTPSerializer
+                        )
 # Create your views here.
 
 
@@ -69,7 +88,6 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             print(OTP.otp)
 
 
-
     def perform_update(self, serializer):
         if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
             serializer.save()
@@ -85,11 +103,114 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             else:
                 serializer.save()
 
-
     def perform_destroy(self, instance):
         serializer = self.get_serializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
         return super().perform_destroy(instance)
+
+
+
+
+
+class UserAccountChangePasswordView(GenericAPIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsOwner]
+    userObject = None
+    lookup_url_kwarg = 'userPK'
+
+    def get_object(self):
+        try:
+            pk = self.kwargs[self.lookup_url_kwarg]
+        except KeyError:
+            self.userObject = None
+            return
+
+        try:
+            self.userObject = UserAccount.objects.get(Q(pk=pk) & Q(is_active=True) & Q(is_account_verified=True))
+        except UserAccount.DoesNotExist:
+            self.userObject = None
+            return
+        self.check_object_permissions(self.request, self.userObject)
+
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({'user': self.userObject})
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.get_object()
+        if self.userObject == None:
+            return Response({"detail": "Not found."}, status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({"detail": "Password changed successfully."}, status.HTTP_200_OK)
+
+
+
+
+
+class RequestResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
+    serializer_class = RequestResetPasswordOTPSerializer
+    permission_classes = [AllowAny]
+    phoneNumber = None
+
+    def get_object(self):
+        try:
+            return UserAccount.objects.get(Q(phone_number=self.phoneNumber) & Q(is_active=True) & Q(is_account_verified=True))
+        except UserAccount.DoesNotExist:
+            return None
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.phoneNumber = serializer.validated_data['phone_number']
+        userObject = self.get_object()
+        if userObject != None:
+            OTP = self.generateOTP(userObject, 'reset_password')
+            print(OTP.otp)
+        return Response({'detail': "Reset password token will be sent to your phone number."}, status.HTTP_200_OK)
+
+
+
+
+
+class verifyResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
+    serializer_class = verifyResetPasswordOTPSerializer
+    permission_classes = [AllowAny]
+    OTPInputCode = None
+    OTPCodeObject = None
+
+    def get_object(self):
+        self.OTPCodeObject = self.getOTPModelObject(self.OTPInputCode, 'reset_password')
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.OTPInputCode = serializer.validated_data['otp']
+        self.get_object()
+        if self.OTPCodeObject == None:
+            return Response({'detail': "OTP code does not exist."}, status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'detail': "OTP code exists."}, status.HTTP_200_OK)
+
+
+
+
+
+class ResetPasswordView(GenericAPIView, ResetPasswordOTPManager):
+    serializer_class = ResetPasswordSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': "Account password reseted successfully."}, status.HTTP_200_OK)
+
+
 
 
 
@@ -98,7 +219,9 @@ class CustomVerifyUserAccountVerificationOTPView(VerifyUserAccountVerificationOT
         return self.verifyOTP(user, OTPConfigName, OTPCode)
 
 
+
+
+
 class CustomVerifyNewPhoneNumberVerificationOTPView(VerifyNewPhoneNumberVerificationOTPView, UserAccountNewPhoneNumberVerificationOTPManager):
     def OTPVerifier(self, user, OTPConfigName, OTPCode):
         return self.verifyOTP(user, OTPConfigName, OTPCode)
-

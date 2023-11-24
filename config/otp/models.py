@@ -15,7 +15,7 @@ class OTPCode(models.Model):
     # OTP_USAGE_CHOICES = (
     #     ('account_verification', 'Account Verification'),
     #     ('new_phone_number_verification', 'New Phone Number Verification'),
-    #     ('forget_password', 'Forgotten Password'),
+    #     ('reset_password', 'Forgotten Password'),
     #     ('OTP_login', 'ONE Time Password Login')
     # )
 

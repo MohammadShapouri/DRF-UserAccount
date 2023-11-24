@@ -22,7 +22,7 @@ class VerifyUserAccountVerificationOTPView(GenericAPIView):
 
     validated_data = None
     OTPCodeObject = None
-        
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -61,4 +61,3 @@ class VerifyNewPhoneNumberVerificationOTPView(GenericAPIView):
     
     def OTPVerifier(self, user, OTPConfigName, OTPCode):
         pass
-

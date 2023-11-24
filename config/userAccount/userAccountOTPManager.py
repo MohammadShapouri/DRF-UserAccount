@@ -19,9 +19,10 @@ class UserAccountOTPManager(BaseOTPManager):
                 'OTPType': 'counter_based',
                 'OTPUsage': 'New Phone Number Verification',
             },
-            'forget_password': {
-                'OTPType': 'timer_based',
+            'reset_password': {
+                'OTPType': 'timer_counter_based',
                 'OTPUsage': 'Forgotten Password',
+                'expireAfter': 600
             }
             }
         }
@@ -52,6 +53,6 @@ class UserAccountNewPhoneNumberVerificationOTPManager(UserAccountOTPManager):
 
 
 
-class ForgetPasswordOTPManager(UserAccountOTPManager):
+class ResetPasswordOTPManager(UserAccountOTPManager):
     def afterValidationAction(self, user):
        return True

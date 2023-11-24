@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('otp_type', models.CharField(choices=[('timer_counter_based', 'Both Timer and Counter Based'), ('counter_based', 'Counter Based')], max_length=19, verbose_name='OTP Type')),
-                ('otp_usage', models.CharField(choices=[('account_verification', 'Account Verification'), ('new_phone_number_verification', 'New Phone Number Verification'), ('forget_password', 'Forgotten Password'), ('OTP_login', 'ONE Time Password Login')], max_length=29, verbose_name='OTP Usage')),
+                ('otp_usage', models.CharField(choices=[('account_verification', 'Account Verification'), ('new_phone_number_verification', 'New Phone Number Verification'), ('reset_password', 'Forgotten Password'), ('OTP_login', 'ONE Time Password Login')], max_length=29, verbose_name='OTP Usage')),
                 ('otp_creation_date', models.DateTimeField(auto_now_add=True, verbose_name='Currrent OTP Code Creation Date')),
                 ('expire_after', models.PositiveIntegerField(blank=True, null=True, verbose_name='Expiration Date')),
                 ('try_counter', models.PositiveIntegerField(default=0, verbose_name='Number of Attempts')),

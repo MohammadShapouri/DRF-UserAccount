@@ -7,6 +7,7 @@ from django.db.models import Q
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import UserAccount
 from .userAccountOTPManager import UserAccountOTPManager
+from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
 
 
 
@@ -143,6 +144,7 @@ class UserAccountRetrivalSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     def __init__(self, *arg, **kwargs):
         super().__init__(*arg, **kwargs)
+        self.user = self.context.get('user')
         self.fields['old_password'] = serializers.CharField(style = {'input_type': 'password'}, label='Old Password', write_only=True)
         self.fields['new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='New Password', write_only=True)
         self.fields['confirm_new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='Repeated New Password', write_only=True)
@@ -155,14 +157,14 @@ class ChangePasswordSerializer(serializers.Serializer):
         confirmNewPassword = attrs.pop('confirm_new_password')
         errors_dict = dict()
 
-        if not self.instance.check_password(oldPassword):
+        if not self.user.check_password(oldPassword):
             errors_dict['old_Password'] = "Your old password was entered incorrectly. Please enter it again."
         if newPassword != confirmNewPassword:
             errors_dict['new_password'] = "Two passwords aren't the same."
 
         try:
             # Validate the password and catch the exception
-            validate_password(password=newPassword, user=self.instance)
+            validate_password(password=newPassword, user=self.user)
         # The exception raised here is different than serializers.ValidationError
         except exceptions.ValidationError as e:
             errors_dict['new_password'] = list(e.messages)
@@ -171,19 +173,9 @@ class ChangePasswordSerializer(serializers.Serializer):
         return super().validate(attrs)
 
 
-    # def save(self, **kwargs):
-    #     self.instance.password = make_password(password=self.validated_data.get('new_password'))
-    #     self.instance.save()
-
-
-
-
-
-class ResetPasswordSerializer(serializers.Serializer):
-    def __init__(self, *arg, **kwargs):
-        super().__init__(*arg, **kwargs)
-        self.fields['otp'] = serializers.CharField(required=True, label='OTP Code')
-        self.fields['new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='New Password', write_only=True)
+    def save(self, **kwargs):
+        self.user.password = make_password(password=self.validated_data.get('new_password'))
+        self.user.save()
 
 
 
@@ -202,6 +194,89 @@ class UserAccountDeletionSerializer(serializers.Serializer):
         if not self.user.check_password(password):
             raise serializers.ValidationError({'password': "Your password was entered incorrectly. Please enter it again."})
         return super().validate(attrs)
+
+
+
+
+
+class RequestResetPasswordOTPSerializer(serializers.Serializer):
+    def __init__(self, *arg, **kwargs):
+        super().__init__(*arg, **kwargs)
+        self.fields['phone_number'] = serializers.CharField(required=True, validators=[PhoneNumberValidator], label='Phone Number')
+
+
+
+
+
+class verifyResetPasswordOTPSerializer(serializers.Serializer):
+    def __init__(self, instance=None, data=..., **kwargs):
+        super().__init__(instance, data, **kwargs)
+        self.fields['otp'] = serializers.CharField(required=True, label='OTP Code')
+
+    def validate(self, attrs):
+        OTP = attrs.get('otp')
+        if len(OTP) < 6:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at least 6 characters."})
+        elif str.isdigit(OTP) is False:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must not contain characters."})
+        return super().validate(attrs)
+
+
+
+
+
+class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
+    def __init__(self, *arg, **kwargs):
+        super().__init__(*arg, **kwargs)
+        self.OTPCodeObject = None
+        self.userObject = None
+        self.fields['otp'] = serializers.CharField(required=True, label='OTP Code')
+        self.fields['new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='New Password', write_only=True)
+        self.fields['confirm_new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='Confirm Password', write_only=True)
+
+
+
+    def validate(self, attrs):
+        OTP = attrs.get('otp')
+        if len(OTP) < 6:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at least 6 characters."})
+        elif str.isdigit(OTP) is False:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must not contain characters."})
+
+
+        # Get user account
+        self.OTPCodeObject = self.getOTPModelObject(attrs['otp'], 'reset_password')
+        if self.OTPCodeObject != None:
+            try:
+                self.userObject = self.OTPCodeObject.user
+            except UserAccount.DoesNotExist:
+                raise serializers.ValidationError({'detail': "No userAccount exists for this OTP object."})
+        else:
+            raise serializers.ValidationError({'detail': "No OTP exists with this code."})
+
+
+        # Get passwords from data.
+        newPassword = attrs.get('new_password')
+        confirmNewPassword = attrs.pop('confirm_new_password')
+        errors_dict = dict()
+
+        if newPassword != confirmNewPassword:
+            errors_dict['new_password'] = "Two passwords aren't the same."
+
+        try:
+            # Validate the password and catch the exception
+            validate_password(password=newPassword, user=self.userObject)
+        # The exception raised here is different than serializers.ValidationError
+        except exceptions.ValidationError as e:
+            errors_dict['new_password'] = list(e.messages)
+        if errors_dict:
+            raise serializers.ValidationError(errors_dict)
+        return super().validate(attrs)
+
+
+    def save(self, **kwargs):
+        self.userObject.password = make_password(password=self.validated_data.get('new_password'))
+        self.userObject.save()
 
 
 

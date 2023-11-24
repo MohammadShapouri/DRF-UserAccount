@@ -28,7 +28,7 @@ class BaseOTPManager(BaseOTPConfigManager):
                 'OTPType': 'counter_based',
                 'OTPUsage': 'New Phone Number Verification',
             },
-            'forget_password': {
+            'reset_password': {
                 'OTPType': 'timer_based',
                 'OTPUsage': 'Forgotten Password',
             }
@@ -226,3 +226,16 @@ class BaseOTPManager(BaseOTPConfigManager):
     def getConfigBasedOnOTPUsage(self, OTPConfigName):
         self.getConfig()
         return self._getConfigBasedOnOTPUsage(OTPConfigName)
+
+
+
+    def getOTPModelObject(self, userInputCode, OTPConfigName=None):
+        try:
+            if OTPConfigName == None:
+                return OTPCode.objects.get(otp=userInputCode)
+            else:
+                config = self.getConfigBasedOnOTPUsage(OTPConfigName)
+                return OTPCode.objects.get(Q(otp_usage=config['OTPUsage']) & Q(otp=userInputCode))
+        except OTPCode.DoesNotExist:
+            return None
+        

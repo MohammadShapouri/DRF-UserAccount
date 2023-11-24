@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from extentions.regexValidators.phoneNumberValidator import phoneNumberValidator
+from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
 from django.apps import apps
 from django.contrib.auth.hashers import make_password
-
 # Create your models here.
 
 
@@ -61,10 +60,10 @@ class UserAccount(AbstractUser):
     last_name               = models.CharField(max_length=50, verbose_name='Last Name', blank=True, null=True)
     # username                = models.CharField(max_length=50, verbose_name='Username', blank=False, null=False, validators=[ASCIIUsernameValidator])
     username                = None
-    phone_number            = models.CharField(max_length=11, verbose_name='Phone Number',unique=True, blank=False, null=False, validators=[phoneNumberValidator])
+    phone_number            = models.CharField(max_length=11, verbose_name='Phone Number',unique=True, blank=False, null=False, validators=[PhoneNumberValidator])
     email                   = models.EmailField(unique=True, blank=False, null=False, verbose_name='Email')
     is_account_verified     = models.BooleanField(default=False, verbose_name='Is Account Verified?')
-    new_phone_number        = models.CharField(max_length=11, verbose_name='New Unverified Phone Number', blank=True, null=True, validators=[phoneNumberValidator])
+    new_phone_number        = models.CharField(max_length=11, verbose_name='New Unverified Phone Number', blank=True, null=True, validators=[PhoneNumberValidator])
     is_new_phone_verified   = models.BooleanField(default=True, verbose_name='Is New Phone Number Verified?')
 
 

@@ -10,7 +10,7 @@
 			"name": "Users",
 			"item": [
 				{
-					"name": "OTP",
+					"name": "Verifications",
 					"item": [
 						{
 							"name": "Verify Account Verification OTP",
@@ -27,7 +27,7 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/otp/${{User ID}}/verify-account"
+								"url": "http://127.0.0.1:8000/api/users/{{User ID}}/verify-account"
 							},
 							"response": []
 						},
@@ -47,7 +47,7 @@
 									]
 								},
 								"url": {
-									"raw": "127.0.0.1:8000/api/otp/${{User ID}}/verify-new-phone-number",
+									"raw": "127.0.0.1:8000/api/users/{{User ID}}/verify-new-phone-number",
 									"host": [
 										"127",
 										"0",
@@ -57,8 +57,8 @@
 									"port": "8000",
 									"path": [
 										"api",
-										"otp",
-										"${{User ID}}",
+										"users",
+										"{{User ID}}",
 										"verify-new-phone-number"
 									],
 									"query": [
@@ -75,6 +75,126 @@
 					]
 				},
 				{
+					"name": "Reset Password",
+					"item": [
+						{
+							"name": "Step 1 - Request Reset Password OTP",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "phone_number",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://127.0.0.1:8000/api/users/request-reset-password-otp"
+							},
+							"response": []
+						},
+						{
+							"name": "Optional Step - Verify Reset Password OTP",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "otp",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://127.0.0.1:8000/api/users/verify-reset-password-otp"
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2 - Reset Password",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "otp",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "new_password",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "confirm_new_password",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://127.0.0.1:8000/api/users/reset-password"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Log in",
+					"item": [
+						{
+							"name": "Log in (Access Token Generator)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "phone_number",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://127.0.0.1:8000/api/token/"
+							},
+							"response": []
+						},
+						{
+							"name": "Log in (Renew access Token)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "refresh",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": "http://127.0.0.1:8000/api/token/refresh/"
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Get All Users",
 					"request": {
 						"auth": {
@@ -82,31 +202,7 @@
 						},
 						"method": "GET",
 						"header": [],
-						"url": "127.0.0.1:8000/api/users/"
-					},
-					"response": []
-				},
-				{
-					"name": "Login (Access Token Generator)",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "phone_number",
-									"value": "09354451933",
-									"type": "text"
-								},
-								{
-									"key": "password",
-									"value": "MSh_1989",
-									"type": "text"
-								}
-							]
-						},
-						"url": "http://127.0.0.1:8000/api/token/"
+						"url": "127.0.0.1:8000/api/users"
 					},
 					"response": []
 				},
@@ -146,7 +242,7 @@
 								}
 							]
 						},
-						"url": "127.0.0.1:8000/api/users/${{User ID}}/"
+						"url": "127.0.0.1:8000/api/users/{{User ID}}/"
 					},
 					"response": []
 				},
@@ -168,7 +264,7 @@
 								}
 							]
 						},
-						"url": "127.0.0.1:8000/api/users/${{User ID}}/"
+						"url": "127.0.0.1:8000/api/users/{{User ID}}/"
 					},
 					"response": []
 				},
@@ -240,9 +336,29 @@
 						"auth": {
 							"type": "noauth"
 						},
-						"method": "GET",
+						"method": "POST",
 						"header": [],
-						"url": "127.0.0.1:8000/api/users/change-password"
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "old_password",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "confirm_new_password",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": "127.0.0.1:8000/api/users/{{User ID}}/change-password"
 					},
 					"response": []
 				}
