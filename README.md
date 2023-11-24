@@ -15,7 +15,7 @@ A user account management system based on the phone number validation in django 
 
 
 ## Installation
-__If you use windows, instead of using '_python3 -m_', use '_python_' in commands.__
+__If you use windows, instead of using '_python3 -m_', use '_python -m_' in commands.__
 * Run the following command in your teminal to clone this project or download it directly.
     ```
     $ git clone git@github.com:MohammadShapouri/DRF-UserAccount.git
@@ -36,7 +36,7 @@ __If you use windows, instead of using '_python3 -m_', use '_python_' in command
     ```
     > Run the following command in windows
     ```
-    $ source venv/Scripts/activate
+    $ venv/Scripts/activate
     ```
 
 
