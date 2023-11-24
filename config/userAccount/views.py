@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
 from .models import UserAccount
 from .permissions import ISOwnerOrAdmin
-from .serializers import UserAccountCreationSerializer, UserAccountUpdaterializer, UserAccountRetrivalSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserAccountDeletionSerializer
+from .serializers import UserAccountCreationSerializer, UserAccountUpdateSerializer, UserAccountRetrivalSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserAccountDeletionSerializer
 from django.db.models import Q
 from .userAccountOTPManager import UserAccountOTPManager, UserAccountVerificationOTPManager, UserAccountNewPhoneNumberVerificationOTPManager
 from rest_framework.response import Response
