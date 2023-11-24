@@ -8,6 +8,7 @@ A user account management system based on the phone number validation in django 
 * A customizable OTP module for generating and verifing OTP codes and OTP configs.
 * A module for generation and validating OTP configs.
 * Creating, retriving, updating and deleting user account.
+* Changing password and reseting password.
 * Different access level and responses based on the user account type which sends request.
 * Sends OTP code for validating new accounts.
 * Sends OTP code for validating new phone numbers if phone number was changed during update.
@@ -56,6 +57,7 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
 # Things to do in future
 * Dockerizing project. (Though it must be Dockerized after creating project.)
 * Adding api for sending sms.
+* using celery for sending sms.
 * Writing test cases.
-* Adding change password and reset password view. 
+* ~~Adding change password and reset password view.~~ _Done!_
 
