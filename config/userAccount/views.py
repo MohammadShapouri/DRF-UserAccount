@@ -11,6 +11,7 @@ from rest_framework import status
 from .models import UserAccount
 from .permissions import ISOwnerOrAdmin, IsOwner
 from django.db.models import Q
+from rest_framework.exceptions import APIException
 from otp.views import VerifyUserAccountVerificationOTPView, VerifyNewPhoneNumberVerificationOTPView
 from .userAccountOTPManager import (
                                     UserAccountOTPManager,
@@ -31,9 +32,30 @@ from .serializers import (
 # Create your views here.
 
 
+class NoExistingUser(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = {"detail": "No user account found."}
+    default_code = 'no user'
+
+
+class NoExistingOTPCodeObject(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = {'detail': "OTP code does not exist."}
+    default_code = 'no otp code object'
+
+
+class InactiveUser(APIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    default_detail = {"detail": "Account is not active."}
+    default_code = 'inactive user'
+
+
+
 
 class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
-    # queryset = UserAccount.objects.all()
+    queryset = UserAccount.objects.all()
+    lookup_url_kwarg = 'userPK'
+
     def get_queryset(self):
         if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
             self.queryset = UserAccount.objects.all()
@@ -41,6 +63,33 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             self.queryset = UserAccount.objects.filter(Q(is_active=True) & Q(is_account_verified=True))
         return super().get_queryset()
 
+    def get_object(self):
+        queryset = self.filter_queryset(self.queryset)
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        filter_kwargs = None
+        obj = None
+        # get_queryset returns lists. for managing lists, no action required here.
+        # For working with specific objects, the following part handles its logic.
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        try:
+            obj = queryset.get(**filter_kwargs)
+        except UserAccount.DoesNotExist:
+            raise NoExistingUser
+        self.check_object_permissions(self.request, obj)
+        
+        if (self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff) or (obj.is_active == True and obj.is_account_verified == True):
+            return obj
+        else:
+            raise InactiveUser
+
+            
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -113,24 +162,24 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
 
 
 class UserAccountChangePasswordView(GenericAPIView):
+    lookup_url_kwarg = 'userPK'
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsOwner]
     userObject = None
-    lookup_url_kwarg = 'userPK'
 
     def get_object(self):
+        userObject = None
         try:
-            pk = self.kwargs[self.lookup_url_kwarg]
-        except KeyError:
-            self.userObject = None
-            return
-
-        try:
-            self.userObject = UserAccount.objects.get(Q(pk=pk) & Q(is_active=True) & Q(is_account_verified=True))
+            userPK = self.kwargs[self.lookup_url_kwarg]
+            userObject = UserAccount.objects.get(pk=userPK)
         except UserAccount.DoesNotExist:
-            self.userObject = None
-            return
-        self.check_object_permissions(self.request, self.userObject)
+            raise NoExistingUser
+        
+        self.check_object_permissions(self.request, userObject)
+        if userObject.is_active == True and userObject.is_account_verified == True:
+            return userObject
+        else:
+            raise InactiveUser
 
 
     def get_serializer_context(self):
@@ -138,15 +187,13 @@ class UserAccountChangePasswordView(GenericAPIView):
         context.update({'user': self.userObject})
         return context
 
+
     def post(self, request, *args, **kwargs):
-        self.get_object()
-        if self.userObject == None:
-            return Response({"detail": "Not found."}, status.HTTP_404_NOT_FOUND)
-        else:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response({"detail": "Password changed successfully."}, status.HTTP_200_OK)
+        self.userObject = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"detail": "Password changed successfully."}, status.HTTP_200_OK)
 
 
 
@@ -168,6 +215,7 @@ class RequestResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
         serializer.is_valid(raise_exception=True)
         self.phoneNumber = serializer.validated_data['phone_number']
         userObject = self.get_object()
+        # Only generates and sends OTP code to existing accounts which are active.
         if userObject != None:
             OTP = self.generateOTP(userObject, 'reset_password')
             print(OTP.otp)
@@ -181,20 +229,24 @@ class verifyResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
     serializer_class = verifyResetPasswordOTPSerializer
     permission_classes = [AllowAny]
     OTPInputCode = None
-    OTPCodeObject = None
 
     def get_object(self):
-        self.OTPCodeObject = self.getOTPModelObject(self.OTPInputCode, 'reset_password')
-    
+        OTPCodeObject = self.getOTPModelObjectByUserInputCode(self.OTPInputCode, 'reset_password')
+        if OTPCodeObject == None:
+            raise NoExistingOTPCodeObject
+        else:
+            return OTPCodeObject
+
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.OTPInputCode = serializer.validated_data['otp']
-        self.get_object()
-        if self.OTPCodeObject == None:
-            return Response({'detail': "OTP code does not exist."}, status.HTTP_404_NOT_FOUND)
-        else:
+        OTPCodeObject = self.get_object()
+        if OTPCodeObject.user.is_active == True and OTPCodeObject.user.is_account_verified == True:
             return Response({'detail': "OTP code exists."}, status.HTTP_200_OK)
+        else:
+            return Response({'detail': "OTP code exists but related account to this OTP code is not active."}, status.HTTP_403_FORBIDDEN)
 
 
 
@@ -209,6 +261,42 @@ class ResetPasswordView(GenericAPIView, ResetPasswordOTPManager):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'detail': "Account password reseted successfully."}, status.HTTP_200_OK)
+
+
+
+
+
+class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPManager):
+    lookup_url_kwarg = 'userPK'
+    permission_classes = [IsOwner]
+
+    def get_object(self):
+        userObject = None
+        try:
+            userPK = self.kwargs[self.lookup_url_kwarg]
+            userObject = UserAccount.objects.get(pk=userPK)
+        except UserAccount.DoesNotExist:
+            raise NoExistingUser
+    
+        self.check_object_permissions(self.request, userObject)
+        if userObject.is_active == True and userObject.is_account_verified == True:
+            return userObject
+        else:
+            raise InactiveUser
+
+
+    def post(self, request, *args, **kwargs):
+        userObject = self.get_object()
+        if userObject.is_new_phone_verified == False and userObject.new_phone_number != None:
+            OTP = self.generateOTP(userObject, 'new_phone_number_verification')
+            print(OTP.otp)
+            return Response({"detail": "New phone number verification OTP will be sent."}, status.HTTP_200_OK)
+        else:
+            return Response({"detail": "You don't have new phone number to verify."}, status.HTTP_200_OK)
+
+
+
+
 
 
 

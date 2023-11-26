@@ -1,8 +1,9 @@
 {
 	"info": {
 		"_postman_id": "94196ded-46bf-4b8d-992b-3680969c85a2",
-		"name": "DRF-UserAccount",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"name": "DRF-UserAccount API",
+		"description": "A user account management system based on the phone number validation in django rest framework.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "22997140"
 	},
 	"item": [
@@ -27,7 +28,24 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/users/{{User ID}}/verify-account"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/{{User ID}}/verify-account",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"verify-account"
+									]
+								},
+								"description": "#### Used for verifying account.\n\n**Body:**\n\n'_otp_': pass OTP code here."
 							},
 							"response": []
 						},
@@ -60,15 +78,44 @@
 										"users",
 										"{{User ID}}",
 										"verify-new-phone-number"
-									],
-									"query": [
+									]
+								},
+								"description": "#### Used for verifying new phone number.\n\n**Body:**\n\n'_otp_': pass OTP code here."
+							},
+							"response": []
+						},
+						{
+							"name": "Resend New Phone Number Verification OTP",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
 										{
-											"key": "",
+											"key": "token",
 											"value": "",
-											"disabled": true
+											"type": "string"
 										}
 									]
-								}
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "127.0.0.1:8000/api/users/{{User ID}}/resend-new-phone-number-verification-otp",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"resend-new-phone-number-verification-otp"
+									]
+								},
+								"description": "#### Used for resending new phone number verification OTP code.\n\n_** This API Needs Bearer Token._"
 							},
 							"response": []
 						}
@@ -92,7 +139,23 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/users/request-reset-password-otp"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/request-reset-password-otp",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"request-reset-password-otp"
+									]
+								},
+								"description": "#### Used for sending a request for reset password OTP code.\n\n**Body:**\n\n'_phone_number_': pass phone_number here."
 							},
 							"response": []
 						},
@@ -111,7 +174,23 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/users/verify-reset-password-otp"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/verify-reset-password-otp",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"verify-reset-password-otp"
+									]
+								},
+								"description": "#### Used for verifying OTP code.\n\n_** Using this API is not essential during reset password process_\n\n**Body:**\n\n'_otp_': pass OTP code here."
 							},
 							"response": []
 						},
@@ -140,7 +219,23 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/users/reset-password"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/reset-password",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"reset-password"
+									]
+								},
+								"description": "#### Used for reseting password.\n\n**Body:**\n\n'_otp_': pass OTP code here.\n\n'_new_password_': pass new password here.\n\n'_confirm_new_password_': pass new password here."
 							},
 							"response": []
 						}
@@ -169,7 +264,23 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/token/"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/token/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"token",
+										""
+									]
+								},
+								"description": "#### Used for logging in.\n\n_** Use access token for logging in and refresh token for regenerating access token._\n\n**Body:**\n\n'_phone_number_': pass phone number here.\n\n'_password_': pass password here."
 							},
 							"response": []
 						},
@@ -188,7 +299,24 @@
 										}
 									]
 								},
-								"url": "http://127.0.0.1:8000/api/token/refresh/"
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/token/refresh/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"token",
+										"refresh",
+										""
+									]
+								},
+								"description": "#### Used for regenerating access token without phone number and password.\n\n_** Use access token for logging in and refresh token for regenerating access token._\n\n**Body:**\n\n'_refresh_': pass refresh token here."
 							},
 							"response": []
 						}
@@ -202,7 +330,20 @@
 						},
 						"method": "GET",
 						"header": [],
-						"url": "127.0.0.1:8000/api/users"
+						"url": {
+							"raw": "127.0.0.1:8000/api/users",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users"
+							]
+						}
 					},
 					"response": []
 				},
@@ -210,10 +351,7 @@
 					"name": "Update User",
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": {
-								"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzAwMzQxNTMwLCJpYXQiOjE3MDAzMzQzMzAsImp0aSI6IjkyOGNjMTU4ZDg4ODRjM2Y4ODk3MmYyMGQzOTBmYzU3IiwidXNlcl9pZCI6Nzh9.mvYaSKwHFjvGaoGB1KxAuoyii5BQU7P0vrk-_ZebLXs"
-							}
+							"type": "noauth"
 						},
 						"method": "PATCH",
 						"header": [],
@@ -242,7 +380,22 @@
 								}
 							]
 						},
-						"url": "127.0.0.1:8000/api/users/{{User ID}}/"
+						"url": {
+							"raw": "127.0.0.1:8000/api/users/{{User ID}}/",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{User ID}}",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -250,7 +403,14 @@
 					"name": "Delete user",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
 						},
 						"method": "DELETE",
 						"header": [],
@@ -264,7 +424,22 @@
 								}
 							]
 						},
-						"url": "127.0.0.1:8000/api/users/{{User ID}}/"
+						"url": {
+							"raw": "127.0.0.1:8000/api/users/{{User ID}}/",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{User ID}}",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -323,10 +498,29 @@
 									"key": "is_account_verified",
 									"value": "",
 									"type": "text"
+								},
+								{
+									"key": "is_staff",
+									"value": "",
+									"type": "text"
 								}
 							]
 						},
-						"url": "127.0.0.1:8000/api/users/"
+						"url": {
+							"raw": "127.0.0.1:8000/api/users/",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -334,7 +528,14 @@
 					"name": "Change Password",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
 						},
 						"method": "POST",
 						"header": [],
@@ -358,7 +559,45 @@
 								}
 							]
 						},
-						"url": "127.0.0.1:8000/api/users/{{User ID}}/change-password"
+						"url": {
+							"raw": "127.0.0.1:8000/api/users/{{User ID}}/change-password",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{User ID}}",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8000/api/users/{{User ID}}",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"{{User ID}}"
+							]
+						}
 					},
 					"response": []
 				}

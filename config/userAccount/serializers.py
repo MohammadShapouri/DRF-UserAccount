@@ -4,10 +4,12 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 from django.core import exceptions
 from django.db.models import Q
+from rest_framework.fields import empty
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import UserAccount
 from .userAccountOTPManager import UserAccountOTPManager
 from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
+from rest_framework import status
 
 
 
@@ -245,7 +247,7 @@ class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
 
 
         # Get user account
-        self.OTPCodeObject = self.getOTPModelObject(attrs['otp'], 'reset_password')
+        self.OTPCodeObject = self.getOTPModelObjectByUserInputCode(attrs['otp'], 'reset_password')
         if self.OTPCodeObject != None:
             try:
                 self.userObject = self.OTPCodeObject.user
@@ -253,6 +255,10 @@ class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
                 raise serializers.ValidationError({'detail': "No userAccount exists for this OTP object."})
         else:
             raise serializers.ValidationError({'detail': "No OTP exists with this code."})
+        
+        if self.userObject.is_active == False and self.userObject.is_account_verified == False:
+            raise serializers.ValidationError({'detail': "Account is not active."}, status.HTTP_403_FORBIDDEN)
+
 
 
         # Get passwords from data.
@@ -286,7 +292,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, UserAccountOTPM
     authentication_error_messages = [
         {"no_account": "No account found with the given credentials."},
         {"no_active_account": "No active account found with the given credentials."},
-        {"no_verified_account": "No verified account found with the given credentials."}
+        {"no_verified_account": "No verified account found with the given credentials. OTP verification will be sent to your SMS."}
         ]
 
     def validate(self, attrs):

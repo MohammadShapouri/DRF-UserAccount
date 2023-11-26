@@ -229,13 +229,27 @@ class BaseOTPManager(BaseOTPConfigManager):
 
 
 
-    def getOTPModelObject(self, userInputCode, OTPConfigName=None):
+    def getOTPModelObjectByUserInputCode(self, userInputCode, OTPConfigName=None):
         try:
-            if OTPConfigName == None:
-                return OTPCode.objects.get(otp=userInputCode)
-            else:
-                config = self.getConfigBasedOnOTPUsage(OTPConfigName)
-                return OTPCode.objects.get(Q(otp_usage=config['OTPUsage']) & Q(otp=userInputCode))
+            config = self.getConfigBasedOnOTPUsage(OTPConfigName)
+            return OTPCode.objects.get(Q(otp_usage=config['OTPUsage']) & Q(otp=userInputCode))
         except OTPCode.DoesNotExist:
             return None
+        # config = self.getConfigBasedOnOTPUsage(OTPConfigName)
+        # OTPCodeObject = OTPCode.objects.filter(Q(otp_usage=config['OTPUsage']) & Q(otp=userInputCode))
+        # if len(OTPCodeObject) > 0:
+        #     return OTPCodeObject[0]
+        # return None
         
+
+    def getOTPModelObjectByUserId(self, userId, OTPConfigName=None):
+        try:
+            config = self.getConfigBasedOnOTPUsage(OTPConfigName)
+            return OTPCode.objects.get(Q(otp_usage=config['OTPUsage']) & Q(pk=userId))
+        except OTPCode.DoesNotExist:
+            return None
+        # config = self.getConfigBasedOnOTPUsage(OTPConfigName)
+        # OTPCodeObject = OTPCode.objects.filter(Q(otp_usage=config['OTPUsage']) & Q(pk=userId))
+        # if len(OTPCodeObject) > 0:
+        #     return OTPCodeObject[0]
+        # return None

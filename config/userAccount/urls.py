@@ -16,5 +16,7 @@ urlpatterns = [
     # Verifications password URLs.
     path('users/<int:userPk>/verify-account', views.CustomVerifyUserAccountVerificationOTPView.as_view(), name='Verify Account'),
     path('users/<int:userPk>/verify-new-phone-number', views.CustomVerifyNewPhoneNumberVerificationOTPView.as_view(), name='Verify New Phone Number'),
+    # Resend New New PhoneNumber Verification OTP URL.
+    path('users/<int:userPK>/resend-new-phone-number-verification-otp', views.ResendNewNewPhoneNumberVerificationOTPView.as_view(), name='Resend New New PhoneNumber Verification OTP')
 ]
 urlpatterns += router.urls
