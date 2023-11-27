@@ -3,6 +3,9 @@
 
 A user account management system based on the phone number validation in django rest framework.
 
+# Dockerized version link:
+https://github.com/MohammadShapouri/Dockerized-DRF-UserAccount
+
 
 ## Features
 * A customizable OTP module for generating and verifing OTP codes and OTP configs.
