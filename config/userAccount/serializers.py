@@ -10,7 +10,7 @@ from .models import UserAccount
 from .userAccountOTPManager import UserAccountOTPManager
 from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
 from rest_framework import status
-
+from .tasks import sendSMS
 
 
 
@@ -318,7 +318,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, UserAccountOTPM
             OTP = self.generateOTP(user = self.user,
                                     OTPConfigName = 'account_verification'
                                     )
-            print(OTP.otp)
+            sendSMS.delay(OTP.otp)
             raise rest_exceptions.AuthenticationFailed(self.authentication_error_messages[2])
         else:
             if self.user.is_active is False:

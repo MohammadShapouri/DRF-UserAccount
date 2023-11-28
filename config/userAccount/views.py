@@ -13,6 +13,7 @@ from .permissions import ISOwnerOrAdmin, IsOwner
 from django.db.models import Q
 from rest_framework.exceptions import APIException
 from otp.views import VerifyUserAccountVerificationOTPView, VerifyNewPhoneNumberVerificationOTPView
+from .tasks import sendSMS
 from .userAccountOTPManager import (
                                     UserAccountOTPManager,
                                     UserAccountVerificationOTPManager,
@@ -134,7 +135,7 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
                                     OTPConfigName = 'account_verification'
                                     )
             serializer.data['account_verification'] = "For verifing your account, Please check you SMS."
-            print(OTP.otp)
+            sendSMS.delay(OTP.otp)
 
 
     def perform_update(self, serializer):
@@ -218,7 +219,7 @@ class RequestResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
         # Only generates and sends OTP code to existing accounts which are active.
         if userObject != None:
             OTP = self.generateOTP(userObject, 'reset_password')
-            print(OTP.otp)
+            sendSMS.delay(OTP.otp)
         return Response({'detail': "Reset password token will be sent to your phone number."}, status.HTTP_200_OK)
 
 
@@ -289,7 +290,7 @@ class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPM
         userObject = self.get_object()
         if userObject.is_new_phone_verified == False and userObject.new_phone_number != None:
             OTP = self.generateOTP(userObject, 'new_phone_number_verification')
-            print(OTP.otp)
+            sendSMS.delay(OTP.otp)
             return Response({"detail": "New phone number verification OTP will be sent."}, status.HTTP_200_OK)
         else:
             return Response({"detail": "You don't have new phone number to verify."}, status.HTTP_200_OK)

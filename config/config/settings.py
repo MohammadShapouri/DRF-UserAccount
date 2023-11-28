@@ -161,3 +161,9 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
     "TOKEN_OBTAIN_SERIALIZER": "userAccount.serializers.CustomTokenObtainPairSerializer",
 }
+
+
+
+# Celery Config
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
