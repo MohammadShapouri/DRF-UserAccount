@@ -12,6 +12,7 @@ https://github.com/MohammadShapouri/Dockerized-DRF-UserAccount
 * A module for generation and validating OTP configs.
 * Creating, retriving, updating and deleting user account.
 * Changing password and reseting password.
+* Using celery for running tasks asynchronously.
 * Different access level and responses based on the user account type which sends request.
 * Sends OTP code for validating new accounts.
 * Sends OTP code for validating new phone numbers if phone number was changed during update.
@@ -24,6 +25,7 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     ```
     $ git clone git@github.com:MohammadShapouri/DRF-UserAccount.git
     ```
+* Install redis
 
 * Navigate to the project folder.
 
@@ -56,11 +58,17 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     $ python3 manage.py runserver
     ```
 
+* Run the following command in the folder which contains manage.py to run celery.
+  ```
+    python -m celery -A config worker -l info
+
+  ```
+
 
 # Things to do in future
 * Dockerizing project. (Though it must be Dockerized after creating project.)
 * Adding api for sending sms.
-* using celery for sending sms.
+* ~~using celery for sending sms.~~ _Done!_
 * Writing test cases.
 * ~~Adding change password and reset password view.~~ _Done!_
 
