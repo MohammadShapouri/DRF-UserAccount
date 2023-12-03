@@ -1,3 +1,5 @@
+import os
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
@@ -81,3 +83,32 @@ class UserAccount(AbstractUser):
 
     def __str__(self):
         return str(self.phone_number)
+
+
+
+
+
+def update_filename(instance, filename):
+    splittedFileName = filename.split('.')
+    extention = splittedFileName[-1]
+    filename = '.'.join(splittedFileName[0:(len(splittedFileName)-1)])
+    filename = filename + '__' + str(timezone.now().timestamp())
+    filePath = "user_{0}/{1}.{2}".format(instance.user.pk, filename, extention)
+    return os.path.join('profile_photo', filePath)
+
+
+
+class UserAccountProfilePicture(models.Model):
+    user            = models.ForeignKey('UserAccount', on_delete=models.CASCADE, related_name='ProfilePicture', verbose_name='User Account Profile Picture')
+    photo           = models.ImageField(upload_to=update_filename, blank=False, null=False, verbose_name='Profile Picture')
+    is_default_pic  = models.BooleanField(default=True, blank=False, null=False, verbose_name='Is It Default Profile Picture?')
+    creation_date   = models.DateTimeField(auto_now_add=True, blank=True, null=True, verbose_name='This Profile Picture\'s Creation Date')
+
+
+    class Meta:
+        verbose_name = 'User Account Profile Picture'
+        verbose_name_plural = 'User Account Profile Pictures'
+
+
+    def __str__(self):
+        return str(self.user) + "'s profile picture -- " + str(self.creation_date)

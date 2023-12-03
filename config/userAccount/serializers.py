@@ -6,7 +6,7 @@ from django.core import exceptions
 from django.db.models import Q
 from rest_framework.fields import empty
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import UserAccount
+from .models import UserAccount, UserAccountProfilePicture
 from .userAccountOTPManager import UserAccountOTPManager
 from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
 from rest_framework import status
@@ -324,3 +324,41 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, UserAccountOTPM
             if self.user.is_active is False:
                 raise rest_exceptions.AuthenticationFailed(self.authentication_error_messages[1])
         return super().validate(attrs)
+
+
+
+
+
+
+
+class UserAccountProfilePictureSerializer(serializers.ModelSerializer):
+    def __init__(self, *arg, **kwargs):
+        super().__init__(*arg, **kwargs)
+        # self.user = self.context.get('user')
+        self.request = self.context.get('request')
+        if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
+            self.fields['creation_date'].read_only = False
+            if self.request.method == 'PUT' or self.request.method == 'PATCH':
+                self.fields['user'].required = False
+                self.fields['user'].read_only = True
+        else:
+            self.fields['user'].required = False
+            self.fields['user'].read_only = True
+
+            if self.request.method == 'PUT' or self.request.method == 'PATCH':
+                self.fields['photo'].read_only = True
+                self.fields['is_default_pic'].read_only = True
+            else:
+                self.fields['photo'].read_only = False
+                self.fields['is_default_pic'].read_only = False
+
+
+    class Meta:
+        model = UserAccountProfilePicture
+        fields = ['pk', 'user', 'photo', 'is_default_pic', 'creation_date']
+
+
+    def validate(self, attrs):
+        if self.request.data.get('is_default_pic') == None:
+            attrs['is_default_pic'] = True
+        return attrs

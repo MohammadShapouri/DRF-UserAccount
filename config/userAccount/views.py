@@ -1,17 +1,17 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny
-from .models import UserAccount
-from .permissions import ISOwnerOrAdmin
+from .models import UserAccount, UserAccountProfilePicture
+from .permissions import IsOwnerOrAdmin, IsPictureOwnerOrAdmin
 from .serializers import UserAccountCreationSerializer, UserAccountUpdateSerializer, UserAccountRetrivalSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserAccountDeletionSerializer
 from django.db.models import Q
 from .userAccountOTPManager import UserAccountOTPManager, UserAccountVerificationOTPManager, UserAccountNewPhoneNumberVerificationOTPManager
 from rest_framework.response import Response
 from rest_framework import status
 from .models import UserAccount
-from .permissions import ISOwnerOrAdmin, IsOwner
-from django.db.models import Q
+from .permissions import IsOwnerOrAdmin, IsOwner
 from rest_framework.exceptions import APIException
+from rest_framework.parsers import MultiPartParser
 from otp.views import VerifyUserAccountVerificationOTPView, VerifyNewPhoneNumberVerificationOTPView
 from .tasks import sendSMS
 from .userAccountOTPManager import (
@@ -28,7 +28,8 @@ from .serializers import (
                         ChangePasswordSerializer,
                         ResetPasswordSerializer,
                         RequestResetPasswordOTPSerializer,
-                        verifyResetPasswordOTPSerializer
+                        verifyResetPasswordOTPSerializer,
+                        UserAccountProfilePictureSerializer
                         )
 # Create your views here.
 
@@ -64,6 +65,7 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             self.queryset = UserAccount.objects.filter(Q(is_active=True) & Q(is_account_verified=True))
         return super().get_queryset()
 
+
     def get_object(self):
         queryset = self.filter_queryset(self.queryset)
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -90,7 +92,6 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
         else:
             raise InactiveUser
 
-            
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -100,7 +101,7 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             pk = None
         context.update({'user': self.request.user, 'requested_pk': pk})
         return context
-    
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -118,13 +119,13 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
         if self.request.method == 'GET':
             self.permission_classes = [AllowAny]
         elif self.request.method == 'PUT' or self.request.method == 'PATCH':
-            self.permission_classes = [ISOwnerOrAdmin]
+            self.permission_classes = [IsOwnerOrAdmin]
         elif self.request.method == 'POST':
             self.permission_classes = [AllowAny]
         elif self.request.method == 'DELETE':
-            self.permission_classes = [ISOwnerOrAdmin]
+            self.permission_classes = [IsOwnerOrAdmin]
         return super().get_permissions()
-    
+
 
     def perform_create(self, serializer):
         if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
@@ -152,6 +153,7 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
                 serializer.data['new_phone_number_verification'] = "For verifing your new phone number, Please check you SMS."
             else:
                 serializer.save()
+
 
     def perform_destroy(self, instance):
         serializer = self.get_serializer(data=self.request.data)
@@ -314,3 +316,82 @@ class CustomVerifyUserAccountVerificationOTPView(VerifyUserAccountVerificationOT
 class CustomVerifyNewPhoneNumberVerificationOTPView(VerifyNewPhoneNumberVerificationOTPView, UserAccountNewPhoneNumberVerificationOTPManager):
     def OTPVerifier(self, user, OTPConfigName, OTPCode):
         return self.verifyOTP(user, OTPConfigName, OTPCode)
+
+
+
+
+
+class UserAccountProfilePictureViewSet(ModelViewSet):
+    serializer_class = UserAccountProfilePictureSerializer
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsPictureOwnerOrAdmin]
+    lookup_url_kwarg = 'picturePK'
+
+
+    def get_queryset(self):
+        userPK = self.kwargs.get('userPK')
+        self.queryset = UserAccountProfilePicture.objects.filter(user__pk=userPK)
+        if len(self.queryset) == 0:
+            raise NoExistingUser
+
+        if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
+            pass
+        else:
+            if self.queryset[0].user.is_active == False and self.queryset[0].user.is_account_verified == False:
+                raise InactiveUser
+        return super().get_queryset()
+
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({'request': self.request,
+                        # 'user': self.request.user
+                        })
+        return context
+    
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            self.permission_classes = [AllowAny]
+        elif self.request.method == 'PUT' or self.request.method == 'PATCH':
+            self.permission_classes = [IsPictureOwnerOrAdmin]
+        elif self.request.method == 'POST':
+            self.permission_classes = [IsPictureOwnerOrAdmin]
+        elif self.request.method == 'DELETE':
+            self.permission_classes = [IsPictureOwnerOrAdmin]
+        return super().get_permissions()
+    
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if self.request.user.is_authenticated:
+            if self.request.user.is_superuser or self.request.user.is_staff:
+                serializer.save()
+            else:
+                if self.kwargs.get('userPK') == self.request.user.pk:
+                    serializer.save(user=self.request.user)
+                else:
+                    return Response({'detail': "You can't add profile picture to other user accounts."}, status=status.HTTP_403_FORBIDDEN)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response({'detail': "You don't have access to add profile picture. Please login first."}, status=status.HTTP_403_FORBIDDEN)
+
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
+            self.perform_update(serializer)
+        else:
+            if instance.is_default_pic == False:
+                serializer.save(is_default_pic=True)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)

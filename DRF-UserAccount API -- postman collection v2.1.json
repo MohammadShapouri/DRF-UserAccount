@@ -323,6 +323,196 @@
 					]
 				},
 				{
+					"name": "Profile Pictures",
+					"item": [
+						{
+							"name": "Get All Profile Pictures",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/{{User ID}}/profile-pictures",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"profile-pictures"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Specific Profile Pictures",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/{{User ID}}/profile-pictures/{{Picture ID}}",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"profile-pictures",
+										"{{Picture ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Profile Picture",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "photo",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "is_default_pic",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "user",
+											"value": "2",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/{{User ID}}/profile-pictures/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"profile-pictures",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Profile Picture",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "photo",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "is_default_pic",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "creation_date",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/{{User ID}}/profile-pictures/{{Picture ID}}",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"profile-pictures",
+										"{{Picture ID}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Profile Picture",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/users/{{User ID}}/profile-pictures/{{Picture ID}}",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"users",
+										"{{User ID}}",
+										"profile-pictures",
+										"{{Picture ID}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Get All Users",
 					"request": {
 						"auth": {
@@ -627,6 +817,11 @@
 	"variable": [
 		{
 			"key": "User ID",
+			"value": "2",
+			"type": "string"
+		},
+		{
+			"key": "Picture ID",
 			"value": "1",
 			"type": "string"
 		}

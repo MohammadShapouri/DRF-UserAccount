@@ -3,8 +3,33 @@ from . import views
 from rest_framework import routers
 
 
+
 router = routers.SimpleRouter()
 router.register('users', views.UserAccountViewSet, basename='UserAccount')
+
+
+
+
+
+userAccountProfilePictureViewSet_list = views.UserAccountProfilePictureViewSet.as_view({
+    'get': 'list',
+    'post': 'create'
+})
+userAccountProfilePictureViewSet_detail = views.UserAccountProfilePictureViewSet.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'delete': 'destroy'
+})
+
+userAccountProfilePictureViewSet_urlpatterns = [
+    path('users/<int:userPK>/profile-pictures/', userAccountProfilePictureViewSet_list, name='UserAccountProfilePicture-list'),
+    path('users/<int:userPK>/profile-pictures/<int:picturePK>', userAccountProfilePictureViewSet_detail, name='UserAccountProfilePicture-detail')
+]
+
+
+
+
 
 urlpatterns = [
     # Change password URL.
@@ -20,3 +45,4 @@ urlpatterns = [
     path('users/<int:userPK>/resend-new-phone-number-verification-otp', views.ResendNewNewPhoneNumberVerificationOTPView.as_view(), name='Resend New New PhoneNumber Verification OTP')
 ]
 urlpatterns += router.urls
+urlpatterns += userAccountProfilePictureViewSet_urlpatterns
