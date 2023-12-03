@@ -27,7 +27,7 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     ```
     $ git clone git@github.com:MohammadShapouri/DRF-UserAccount.git
     ```
-* Install redis and postgresql
+* Install redis and postgresql.
 
 * Navigate to the project folder (DRF-UserAccount folder).
 
