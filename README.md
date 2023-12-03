@@ -27,15 +27,16 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     ```
     $ git clone git@github.com:MohammadShapouri/DRF-UserAccount.git
     ```
-* Install redis
+* Install redis and postgresql
 
-* Navigate to the project folder.
+* Navigate to the project folder (DRF-UserAccount folder).
+
+* Create a .env file and fill it. (.env.sample is a sample file which shows which fields should .env file have.)
 
 * Run the following command to create virtualenv. (If you haven't install virtualenv package, you need to install virtualenv package first).
     ```
     $ python3 -m virtualenv venv
     ```
-
 
 * Activate virtualenv.
     > Run the following command in linux
@@ -53,7 +54,9 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     $ pip install -r requirements.txt
     ```
 
-* Run the following commands one by one in the folder which contains manage.py file to run the project.
+* Navigate to config folder.
+
+* Run the following commands one by one to run the project.
     ```
     $ python3 manage.py makemigrations
     $ python3 manage.py migrate
