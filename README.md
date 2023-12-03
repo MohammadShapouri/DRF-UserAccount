@@ -72,6 +72,7 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
 
 # Things to do in future
 * ~~Dockerizing project. (Though it must be Dockerized after creating project.)~~ _Done! Dockerized version is in another repository._
+* Adding profile picture links to user object data in get method.
 * Adding api for sending sms.
 * ~~using celery for sending sms.~~ _Done!_
 * Writing test cases.
