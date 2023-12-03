@@ -15,8 +15,10 @@ kombu==5.3.4
 packaging==23.2
 Pillow==10.1.0
 prompt-toolkit==3.0.41
+psycopg2==2.9.9
 PyJWT==2.8.0
 python-dateutil==2.8.2
+python-decouple==3.8
 pytz==2023.3.post1
 redis==5.0.1
 six==1.16.0
