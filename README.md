@@ -12,8 +12,10 @@ https://github.com/MohammadShapouri/Dockerized-DRF-UserAccount
 * A module for generation and validating OTP configs.
 * Creating, retriving, updating and deleting user account.
 * Changing password and reseting password.
+* Adding, retriving, updating (setting default profile picture) and deleting profile pictures.
 * Using celery for running tasks asynchronously.
-* Different access level and responses based on the user account type which sends request.
+* Different access level and responses based on the user account type which sends request. (Sperusers and staffs have the same access level as superusers in
+  django admin panel.)
 * Sends OTP code for validating new accounts.
 * Sends OTP code for validating new phone numbers if phone number was changed during update.
 
@@ -66,9 +68,10 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
 
 
 # Things to do in future
-* Dockerizing project. (Though it must be Dockerized after creating project.)
+* ~~Dockerizing project. (Though it must be Dockerized after creating project.)~~ _Done! Dockerized version is in another repository._
 * Adding api for sending sms.
 * ~~using celery for sending sms.~~ _Done!_
 * Writing test cases.
 * ~~Adding change password and reset password view.~~ _Done!_
+* Customizing django admin panel.
 
