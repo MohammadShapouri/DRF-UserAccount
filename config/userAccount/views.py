@@ -52,6 +52,12 @@ class InactiveUser(APIException):
     default_code = 'inactive user'
 
 
+class NoExistingUserForProfilePhoto(APIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    default_detail = {"detail": "No user account with this id added profile photo."}
+    default_code = 'inactive user'
+
+
 
 
 class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
@@ -332,7 +338,7 @@ class UserAccountProfilePictureViewSet(ModelViewSet):
         userPK = self.kwargs.get('userPK')
         self.queryset = UserAccountProfilePicture.objects.filter(user__pk=userPK)
         if len(self.queryset) == 0:
-            raise NoExistingUser
+            raise NoExistingUserForProfilePhoto
 
         if self.request.user.is_authenticated and self.request.user.is_superuser or self.request.user.is_staff:
             pass

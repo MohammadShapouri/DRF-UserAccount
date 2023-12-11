@@ -15,6 +15,7 @@ from .tasks import sendSMS
 
 
 
+
 class UserAccountCreationSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -120,24 +121,25 @@ class UserAccountRetrivalSerializer(serializers.ModelSerializer):
         if self.user.is_authenticated:
             if self.user.is_superuser or self.user.is_staff:
                 # 'groups' and 'user_permissions' are still not added.
-                fields = ['pk', 'first_name', 'last_name', 'phone_number', 'email', 'password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'is_account_verified', 'new_phone_number', 'is_new_phone_verified']
+                fields = ['pk', 'photos', 'first_name', 'last_name', 'phone_number', 'email', 'password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'is_account_verified', 'new_phone_number', 'is_new_phone_verified']
             elif str(self.user.pk) == str(self.requested_pk):
-                fields = ['pk', 'first_name', 'last_name', 'phone_number', 'email', 'last_login', 'new_phone_number', 'is_new_phone_verified', 'date_joined']
+                fields = ['pk', 'photos', 'first_name', 'last_name', 'phone_number', 'email', 'last_login', 'new_phone_number', 'is_new_phone_verified', 'date_joined']
             else:
-                fields = ['pk', 'first_name', 'last_name']
+                fields = ['pk', 'photos', 'first_name', 'last_name']
         else:
-            fields = ['pk', 'first_name', 'last_name']
+            fields = ['pk', 'photos', 'first_name', 'last_name']
 
         allowed = set(fields)
         existing = set(self.fields.keys())
         for fieldname in existing - allowed:
             self.fields.pop(fieldname)
 
+    photos = serializers.PrimaryKeyRelatedField(queryset=UserAccountProfilePicture.objects.all(), many=True)
 
 
     class Meta:
         model = UserAccount
-        fields = ['pk', 'first_name', 'last_name', 'phone_number', 'email', 'password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'is_account_verified', 'new_phone_number', 'is_new_phone_verified']
+        fields = ['pk', 'photos', 'first_name', 'last_name', 'phone_number', 'email', 'password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'is_account_verified', 'new_phone_number', 'is_new_phone_verified']
 
 
 
