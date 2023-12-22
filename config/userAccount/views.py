@@ -110,26 +110,26 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
 
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return UserAccountRetrivalSerializer
-        elif self.request.method == 'PUT' or self.request.method == 'PATCH':
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return UserAccountUpdateSerializer
         elif self.request.method == 'POST':
             return UserAccountCreationSerializer
         elif self.request.method == 'DELETE':
             return UserAccountDeletionSerializer
+        else:
+            return UserAccountRetrivalSerializer
         return super().get_serializer_class()
 
 
     def get_permissions(self):
-        if self.request.method == 'GET':
-            self.permission_classes = [AllowAny]
-        elif self.request.method == 'PUT' or self.request.method == 'PATCH':
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
             self.permission_classes = [IsOwnerOrAdmin]
         elif self.request.method == 'POST':
             self.permission_classes = [AllowAny]
         elif self.request.method == 'DELETE':
             self.permission_classes = [IsOwnerOrAdmin]
+        else:
+            self.permission_classes = [AllowAny]
         return super().get_permissions()
 
 

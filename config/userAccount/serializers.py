@@ -361,6 +361,6 @@ class UserAccountProfilePictureSerializer(serializers.ModelSerializer):
 
 
     def validate(self, attrs):
-        if self.request.data.get('is_default_pic') == None:
+        if self.request.data.get('is_default_pic') == None or self.request.data.get('is_default_pic') == '':
             attrs['is_default_pic'] = True
         return attrs
