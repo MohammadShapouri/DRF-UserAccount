@@ -5,7 +5,6 @@ from .models import UserAccount, UserAccountProfilePicture
 from .permissions import IsOwnerOrAdmin, IsPictureOwnerOrAdmin
 from .serializers import UserAccountCreationSerializer, UserAccountUpdateSerializer, UserAccountRetrivalSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserAccountDeletionSerializer
 from django.db.models import Q
-from .userAccountOTPManager import UserAccountOTPManager, UserAccountVerificationOTPManager, UserAccountNewPhoneNumberVerificationOTPManager
 from rest_framework.response import Response
 from rest_framework import status
 from .models import UserAccount
@@ -13,8 +12,8 @@ from .permissions import IsOwnerOrAdmin, IsOwner
 from rest_framework.exceptions import APIException
 from rest_framework.parsers import MultiPartParser
 from otp.views import VerifyUserAccountVerificationOTPView, VerifyNewPhoneNumberVerificationOTPView
-from .tasks import sendSMS
-from .userAccountOTPManager import (
+from .tasks import send_SMS
+from .user_account_OTP_manager import (
                                     UserAccountOTPManager,
                                     UserAccountVerificationOTPManager,
                                     UserAccountNewPhoneNumberVerificationOTPManager,
@@ -138,11 +137,11 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             serializer.save()
         else:
             user = serializer.save(is_active=False, is_account_verified=False)
-            OTP = self.generateOTP(user = user,
-                                    OTPConfigName = 'account_verification'
+            OTP = self.generate_OTP(user = user,
+                                    OTP_config_name = 'account_verification'
                                     )
             serializer.data['account_verification'] = "For verifing your account, Please check you SMS."
-            sendSMS.delay(OTP.otp)
+            send_SMS.delay(OTP.otp)
 
 
     def perform_update(self, serializer):
@@ -150,11 +149,11 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             serializer.save()
         else:
             if serializer.validated_data['phone_number'] != serializer.instance.phone_number:
-                newPhoneNumber = serializer.validated_data['phone_number']
+                new_phone_number = serializer.validated_data['phone_number']
                 serializer.validated_data['phone_number'] = serializer.instance.phone_number
-                user = serializer.save(new_phone_number=newPhoneNumber, is_new_phone_verified=False)
-                OTP = self.generateOTP(user = user,
-                                        OTPConfigName = 'new_phone_number_verification'
+                user = serializer.save(new_phone_number=new_phone_number, is_new_phone_verified=False)
+                OTP = self.generate_OTP(user = user,
+                                        OTP_config_name = 'new_phone_number_verification'
                                         )
                 serializer.data['new_phone_number_verification'] = "For verifing your new phone number, Please check you SMS."
             else:
@@ -226,8 +225,8 @@ class RequestResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
         userObject = self.get_object()
         # Only generates and sends OTP code to existing accounts which are active.
         if userObject != None:
-            OTP = self.generateOTP(userObject, 'reset_password')
-            sendSMS.delay(OTP.otp)
+            OTP = self.generate_OTP(userObject, 'reset_password')
+            send_SMS.delay(OTP.otp)
         return Response({'detail': "Reset password token will be sent to your phone number."}, status.HTTP_200_OK)
 
 
@@ -240,19 +239,19 @@ class verifyResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
     OTPInputCode = None
 
     def get_object(self):
-        OTPCodeObject = self.getOTPModelObjectByUserInputCode(self.OTPInputCode, 'reset_password')
-        if OTPCodeObject == None:
+        OTP_code_object = self.get_OTP_model_object_by_user_input_code(self.OTPInputCode, 'reset_password')
+        if OTP_code_object == None:
             raise NoExistingOTPCodeObject
         else:
-            return OTPCodeObject
+            return OTP_code_object
 
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.OTPInputCode = serializer.validated_data['otp']
-        OTPCodeObject = self.get_object()
-        if OTPCodeObject.user.is_active == True and OTPCodeObject.user.is_account_verified == True:
+        OTP_code_object = self.get_object()
+        if OTP_code_object.user.is_active == True and OTP_code_object.user.is_account_verified == True:
             return Response({'detail': "OTP code exists."}, status.HTTP_200_OK)
         else:
             return Response({'detail': "OTP code exists but related account to this OTP code is not active."}, status.HTTP_403_FORBIDDEN)
@@ -297,8 +296,8 @@ class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPM
     def post(self, request, *args, **kwargs):
         userObject = self.get_object()
         if userObject.is_new_phone_verified == False and userObject.new_phone_number != None:
-            OTP = self.generateOTP(userObject, 'new_phone_number_verification')
-            sendSMS.delay(OTP.otp)
+            OTP = self.generate_OTP(userObject, 'new_phone_number_verification')
+            send_SMS.delay(OTP.otp)
             return Response({"detail": "New phone number verification OTP will be sent."}, status.HTTP_200_OK)
         else:
             return Response({"detail": "You don't have new phone number to verify."}, status.HTTP_200_OK)
@@ -312,16 +311,16 @@ class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPM
 
 
 class CustomVerifyUserAccountVerificationOTPView(VerifyUserAccountVerificationOTPView, UserAccountVerificationOTPManager):
-    def OTPVerifier(self, user, OTPConfigName, OTPCode):
-        return self.verifyOTP(user, OTPConfigName, OTPCode)
+    def OTPVerifier(self, user, OTP_config_name, OTPCode):
+        return self.verify_OTP(user, OTP_config_name, OTPCode)
 
 
 
 
 
 class CustomVerifyNewPhoneNumberVerificationOTPView(VerifyNewPhoneNumberVerificationOTPView, UserAccountNewPhoneNumberVerificationOTPManager):
-    def OTPVerifier(self, user, OTPConfigName, OTPCode):
-        return self.verifyOTP(user, OTPConfigName, OTPCode)
+    def OTPVerifier(self, user, OTP_config_name, OTPCode):
+        return self.verify_OTP(user, OTP_config_name, OTPCode)
 
 
 

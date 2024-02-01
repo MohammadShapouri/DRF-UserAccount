@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='UserAccountProfilePicture',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to=userAccount.models.update_filename, verbose_name='Profile Picture')),
+                ('image', models.ImageField(upload_to=userAccount.models.set_filename, verbose_name='Profile Picture')),
                 ('is_default_pic', models.BooleanField(default=True, verbose_name='Is It Default Profile Picture?')),
                 ('creation_date', models.DateTimeField(auto_now_add=True, null=True, verbose_name="This Profile Picture's Creation Date")),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rofilePicture', to=settings.AUTH_USER_MODEL, verbose_name='User Account Profile Picture')),

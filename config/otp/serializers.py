@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from .utils.acceptable_OTP_values import least_acceptable_OTP_length, most_acceptable_OTP_length
 
 class OTPVerifierSerializer(serializers.Serializer):
     def __init__(self, instance=None, data=..., **kwargs):
@@ -8,8 +8,10 @@ class OTPVerifierSerializer(serializers.Serializer):
 
 
     def validate_otp(self, value):
-        if len(value) < 6:
-            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at least 6 characters."})
-        elif str.isdigit(value) is False:
+        if str.isdigit(value) is False:
             raise serializers.ValidationError({'OTP': "OTP is not valid. It must not contain characters."})
+        if len(value) < least_acceptable_OTP_length:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at least " + least_acceptable_OTP_length + " characters."})
+        if len(value) > most_acceptable_OTP_length:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at most " + most_acceptable_OTP_length + " characters."})
         return value

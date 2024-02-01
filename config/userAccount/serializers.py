@@ -4,13 +4,13 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 from django.core import exceptions
 from django.db.models import Q
-from rest_framework.fields import empty
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import UserAccount, UserAccountProfilePicture
-from .userAccountOTPManager import UserAccountOTPManager
-from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
+from .user_account_OTP_manager import UserAccountOTPManager
+from otp.utils.acceptable_OTP_values import least_acceptable_OTP_length, most_acceptable_OTP_length
+from extentions.regexValidators.phone_number_validator import PhoneNumberValidator
 from rest_framework import status
-from .tasks import sendSMS
+from .tasks import send_SMS
 
 
 
@@ -33,8 +33,8 @@ class UserAccountCreationSerializer(serializers.ModelSerializer):
         
         allowed = set(fields)
         existing = set(self.fields.keys())
-        for fieldname in existing - allowed:
-            self.fields.pop(fieldname)
+        for field_name in existing - allowed:
+            self.fields.pop(field_name)
 
     confirm_password = serializers.CharField(style = {'input_type': 'password'}, label='Repeated Password', write_only=True)
 
@@ -46,10 +46,10 @@ class UserAccountCreationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         # Get passwords from data.
         password = attrs.get('password')
-        confirmPassword = attrs.pop('confirm_password')
+        confirm_password = attrs.pop('confirm_password')
         errors_dict = dict()
 
-        if password != confirmPassword:
+        if password != confirm_password:
             errors_dict['password'] = "Two passwords aren't the same."
         # Here data has all the fields which have validated values.
         # So we can create a User instance out of it.
@@ -90,8 +90,8 @@ class UserAccountUpdateSerializer(serializers.ModelSerializer):
 
         allowed = set(fields)
         existing = set(self.fields.keys())
-        for fieldname in existing - allowed:
-            self.fields.pop(fieldname)
+        for field_name in existing - allowed:
+            self.fields.pop(field_name)
 
 
     class Meta:
@@ -101,13 +101,12 @@ class UserAccountUpdateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['phone_number'] != self.instance.phone_number:
-            newPhoneNumber = attrs['phone_number']
-            user = UserAccount.objects.filter(~Q(pk=self.instance.pk) & Q(new_phone_number = newPhoneNumber))
+            new_phone_number = attrs['phone_number']
+            user = UserAccount.objects.filter(~Q(pk=self.instance.pk) & Q(new_phone_number = new_phone_number))
             if len(user) > 0:
-                modelName = UserAccount._meta.verbose_name.title()
-                fieldName = UserAccount._meta.get_field('phone_number').verbose_name.title()
-                raise serializers.ValidationError({'Phone Number': f"{modelName} with this {fieldName} already exists."})
-                
+                model_name = UserAccount._meta.verbose_name.title()
+                field_name = UserAccount._meta.get_field('phone_number').verbose_name.title()
+                raise serializers.ValidationError({'Phone Number': f"{model_name} with this {field_name} already exists."})
         return super().validate(attrs)
 
 
@@ -131,8 +130,8 @@ class UserAccountRetrivalSerializer(serializers.ModelSerializer):
 
         allowed = set(fields)
         existing = set(self.fields.keys())
-        for fieldname in existing - allowed:
-            self.fields.pop(fieldname)
+        for field_name in existing - allowed:
+            self.fields.pop(field_name)
 
     photos = serializers.PrimaryKeyRelatedField(queryset=UserAccountProfilePicture.objects.all(), many=True)
 
@@ -156,19 +155,19 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # Get passwords from data.
-        oldPassword = attrs.get('old_password')
-        newPassword = attrs.get('new_password')
-        confirmNewPassword = attrs.pop('confirm_new_password')
+        old_password = attrs.get('old_password')
+        new_password = attrs.get('new_password')
+        confirm_new_password = attrs.pop('confirm_new_password')
         errors_dict = dict()
 
-        if not self.user.check_password(oldPassword):
+        if not self.user.check_password(old_password):
             errors_dict['old_Password'] = "Your old password was entered incorrectly. Please enter it again."
-        if newPassword != confirmNewPassword:
+        if new_password != confirm_new_password:
             errors_dict['new_password'] = "Two passwords aren't the same."
 
         try:
             # Validate the password and catch the exception
-            validate_password(password=newPassword, user=self.user)
+            validate_password(password=new_password, user=self.user)
         # The exception raised here is different than serializers.ValidationError
         except exceptions.ValidationError as e:
             errors_dict['new_password'] = list(e.messages)
@@ -219,10 +218,12 @@ class verifyResetPasswordOTPSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         OTP = attrs.get('otp')
-        if len(OTP) < 6:
-            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at least 6 characters."})
-        elif str.isdigit(OTP) is False:
+        if str.isdigit(OTP) is False:
             raise serializers.ValidationError({'OTP': "OTP is not valid. It must not contain characters."})
+        if len(OTP) < least_acceptable_OTP_length:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at least " + least_acceptable_OTP_length + " characters."})
+        if len(OTP) > most_acceptable_OTP_length:
+            raise serializers.ValidationError({'OTP': "OTP is not valid. It must contain at most " + most_acceptable_OTP_length + " characters."})
         return super().validate(attrs)
 
 
@@ -232,8 +233,8 @@ class verifyResetPasswordOTPSerializer(serializers.Serializer):
 class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
     def __init__(self, *arg, **kwargs):
         super().__init__(*arg, **kwargs)
-        self.OTPCodeObject = None
-        self.userObject = None
+        self.OTP_code_object = None
+        self.user_object = None
         self.fields['otp'] = serializers.CharField(required=True, label='OTP Code')
         self.fields['new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='New Password', write_only=True)
         self.fields['confirm_new_password'] = serializers.CharField(style = {'input_type': 'password'}, label='Confirm Password', write_only=True)
@@ -249,31 +250,31 @@ class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
 
 
         # Get user account
-        self.OTPCodeObject = self.getOTPModelObjectByUserInputCode(attrs['otp'], 'reset_password')
-        if self.OTPCodeObject != None:
+        self.OTP_code_object = self.get_OTP_model_object_by_user_input_code(attrs['otp'], 'reset_password')
+        if self.OTP_code_object != None:
             try:
-                self.userObject = self.OTPCodeObject.user
+                self.user_object = self.OTP_code_object.user
             except UserAccount.DoesNotExist:
                 raise serializers.ValidationError({'detail': "No userAccount exists for this OTP object."})
         else:
             raise serializers.ValidationError({'detail': "No OTP exists with this code."})
         
-        if self.userObject.is_active == False and self.userObject.is_account_verified == False:
+        if self.user_object.is_active == False and self.user_object.is_account_verified == False:
             raise serializers.ValidationError({'detail': "Account is not active."}, status.HTTP_403_FORBIDDEN)
 
 
 
         # Get passwords from data.
-        newPassword = attrs.get('new_password')
-        confirmNewPassword = attrs.pop('confirm_new_password')
+        new_password = attrs.get('new_password')
+        confirm_new_password = attrs.pop('confirm_new_password')
         errors_dict = dict()
 
-        if newPassword != confirmNewPassword:
+        if new_password != confirm_new_password:
             errors_dict['new_password'] = "Two passwords aren't the same."
 
         try:
             # Validate the password and catch the exception
-            validate_password(password=newPassword, user=self.userObject)
+            validate_password(password=new_password, user=self.user_object)
         # The exception raised here is different than serializers.ValidationError
         except exceptions.ValidationError as e:
             errors_dict['new_password'] = list(e.messages)
@@ -283,8 +284,8 @@ class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
 
 
     def save(self, **kwargs):
-        self.userObject.password = make_password(password=self.validated_data.get('new_password'))
-        self.userObject.save()
+        self.user_object.password = make_password(password=self.validated_data.get('new_password'))
+        self.user_object.save()
 
 
 
@@ -317,10 +318,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, UserAccountOTPM
             raise rest_exceptions.AuthenticationFailed(self.authentication_error_messages[0])
 
         if self.user.is_account_verified is False:
-            OTP = self.generateOTP(user = self.user,
-                                    OTPConfigName = 'account_verification'
+            OTP = self.generate_OTP(user = self.user,
+                                    OTP_config_name = 'account_verification'
                                     )
-            sendSMS.delay(OTP.otp)
+            send_SMS.delay(OTP.otp)
             raise rest_exceptions.AuthenticationFailed(self.authentication_error_messages[2])
         else:
             if self.user.is_active is False:

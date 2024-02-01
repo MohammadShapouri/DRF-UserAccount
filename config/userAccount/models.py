@@ -2,7 +2,7 @@ import os
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from extentions.regexValidators.PhoneNumberValidator import PhoneNumberValidator
+from extentions.regexValidators.phone_number_validator import PhoneNumberValidator
 from django.apps import apps
 from django.contrib.auth.hashers import make_password
 # Create your models here.
@@ -88,7 +88,7 @@ class UserAccount(AbstractUser):
 
 
 
-def update_filename(instance, filename):
+def set_filename(instance, filename):
     splittedFileName = filename.split('.')
     extention = splittedFileName[-1]
     filename = '.'.join(splittedFileName[0:(len(splittedFileName)-1)])
@@ -100,7 +100,7 @@ def update_filename(instance, filename):
 
 class UserAccountProfilePicture(models.Model):
     user            = models.ForeignKey('UserAccount', on_delete=models.CASCADE, related_name='photos', verbose_name='User Account Profile Picture')
-    photo           = models.ImageField(upload_to=update_filename, blank=False, null=False, verbose_name='Profile Picture')
+    photo           = models.ImageField(upload_to=set_filename, blank=False, null=False, verbose_name='Profile Picture')
     is_default_pic  = models.BooleanField(default=True, blank=False, null=False, verbose_name='Is It Default Profile Picture?')
     creation_date   = models.DateTimeField(auto_now_add=True, blank=True, null=True, verbose_name='This Profile Picture\'s Creation Date')
 
