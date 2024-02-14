@@ -4,7 +4,8 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 from otp.models import OTPCode
-from random import randint
+import random
+import string
 from .base_OTP_config_manager import BaseOTPConfigManager
 
 
@@ -70,11 +71,11 @@ class BaseOTPManager(BaseOTPConfigManager):
 
 
     def create_random_digits(self, char_count):
-        # allowedChars = string.digits
-        # return int(''.join(random.choices(allowedChars, k=char_count)))
-        range_start = 10**(char_count-1)
-        range_start = (10**char_count)-1
-        return str(randint(range_start, range_start))
+        allowedChars = string.digits
+        return (''.join(random.choices(allowedChars, k=char_count)))
+        # range_start = 10**(char_count-1)
+        # range_start = (10**char_count)-1
+        # return str(randint(range_start, range_start))
 
 
 

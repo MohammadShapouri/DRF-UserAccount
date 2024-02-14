@@ -33,16 +33,16 @@ userAccountProfilePictureViewSet_urlpatterns = [
 
 urlpatterns = [
     # Change password URL.
-    path('users/<int:userPK>/change-password', views.UserAccountChangePasswordView.as_view(), name='Change Password'),
+    path('users/<int:userPK>/change-password', views.UserAccountChangePasswordView.as_view(), name='change-password'),
     # Reset password URLs.
-    path('users/request-reset-password-otp', views.RequestResetPasswordOTP.as_view(), name='Request ResetPassword OTP'),
-    path('users/verify-reset-password-otp', views.verifyResetPasswordOTP.as_view(), name='Verify Reset Password OTP'),
-    path('users/reset-password', views.ResetPasswordView.as_view(), name='Reset Password'),
+    path('users/request-reset-password-otp', views.RequestResetPasswordOTP.as_view(), name='request-reset-password-OTP'),
+    path('users/verify-reset-password-otp', views.verifyResetPasswordOTP.as_view(), name='verify-reset-password-OTP'),
+    path('users/reset-password', views.ResetPasswordView.as_view(), name='reset-password'),
     # Verifications password URLs.
-    path('users/<int:userPk>/verify-account', views.CustomVerifyUserAccountVerificationOTPView.as_view(), name='Verify Account'),
-    path('users/<int:userPk>/verify-new-phone-number', views.CustomVerifyNewPhoneNumberVerificationOTPView.as_view(), name='Verify New Phone Number'),
+    path('users/<int:userPK>/verify-account', views.CustomVerifyUserAccountVerificationOTPView.as_view(), name='verify-account'),
+    path('users/<int:userPK>/verify-new-phone-number', views.CustomVerifyNewPhoneNumberVerificationOTPView.as_view(), name='verify-new-phone-number'),
     # Resend New New PhoneNumber Verification OTP URL.
-    path('users/<int:userPK>/resend-new-phone-number-verification-otp', views.ResendNewNewPhoneNumberVerificationOTPView.as_view(), name='Resend New New PhoneNumber Verification OTP')
+    path('users/<int:userPK>/resend-new-phone-number-verification-otp', views.RequestNewNewPhoneNumberVerificationOTPView.as_view(), name='request-new-new-phone-number-verification-OTP')
 ]
 urlpatterns += router.urls
 urlpatterns += userAccountProfilePictureViewSet_urlpatterns

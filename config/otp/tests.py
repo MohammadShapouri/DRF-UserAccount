@@ -25,7 +25,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 # RUN EACH ONE OF THESE TESTS SEPERATELY.
-    # def test_config_creation1(self):
+    # def test_config_creation_1(self):
     #     config = None
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     base_OTP_config_manager_object._create_config(config)
@@ -58,7 +58,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation2(self):
+    # def test_config_creation_2(self):
     #     config = {
     #         'default_OTP_length': 19, 
     #         'default_max_possible_try': 81,
@@ -95,7 +95,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation3(self):
+    # def test_config_creation_3(self):
     #     config = {
     #         'config_profiles':{
     #             'test_account_verification':{
@@ -145,7 +145,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation4(self):
+    # def test_config_creation_4(self):
     #     config = {
     #         'default_OTP_length': 11, 
     #         'default_max_possible_try': 22,
@@ -187,7 +187,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation5(self):
+    # def test_config_creation_5(self):
     #         # Add OTP_MODULE_CONFIG in your settings and copy the following config
     #             # OTP_MODULE_CONFIG = {
     #             #         'default_OTP_length': 14, 
@@ -243,7 +243,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation6(self):
+    # def test_config_creation_6(self):
     #     # add OTP_MODULE_CONFIG in your settings and copy the following config
     #         # OTP_MODULE_CONFIG = {
     #         #         'config_profiles': {
@@ -300,7 +300,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation7(self):
+    # def test_config_creation_7(self):
     #     # add OTP_MODULE_CONFIG in your settings and copy the following config
     #         # OTP_MODULE_CONFIG = {
     #         #     'default_OTP_length': 19, 
@@ -385,7 +385,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation7_reverse(self):
+    # def test_config_creation_7_reverse(self):
     #     # add OTP_MODULE_CONFIG in your settings and copy the following config
     #         # OTP_MODULE_CONFIG = {
     #         #     'config_profiles': {
@@ -470,7 +470,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation8(self):
+    # def test_config_creation_8(self):
     #     # Checking if an unwanted key in config (but not in config_profiles) can break the app or not
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -549,7 +549,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation9(self):
+    # def test_config_creation_9(self):
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
     #         'default_OTP_length': 12, 
@@ -605,7 +605,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation10(self):
+    # def test_config_creation_10(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when two same keys exist in config.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -639,7 +639,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation11(self):
+    # def test_config_creation_11(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when two same keys exist in config.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -675,7 +675,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation12(self):
+    # def test_config_creation_12(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when two same keys exist in config.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -714,7 +714,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation13(self):
+    # def test_config_creation_13(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when two same keys exist in config.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -748,7 +748,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation14(self):
+    # def test_config_creation_14(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when config contains invalid OTP_type.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -782,7 +782,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation15(self):
+    # def test_config_creation_15(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when passing anything except dict to config_profiles.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -796,7 +796,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation16(self):
+    # def test_config_creation_16(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when passing anything except dict to one of config_profiles profiles.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
@@ -825,7 +825,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_config_creation17(self):
+    # def test_config_creation_17(self):
     #     # Checking that BaseOTPConfigManagerObject raise proper error when passing anything except dict to one of config_profiles profiles.
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     base_OTP_config_manager_object.defaultConfig = None
@@ -855,7 +855,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_retirieving_config_based_on_OTP_usage1(self):
+    # def test_retirieving_config_based_on_OTP_usage_1(self):
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
     #         'default_OTP_length': 12, 
@@ -894,7 +894,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    # def test_retirieving_config_based_on_OTP_usage2(self):
+    # def test_retirieving_config_based_on_OTP_usage_2(self):
     #     base_OTP_config_manager_object = BaseOTPConfigManager()
     #     config = {
     #         'default_OTP_length': 12, 
@@ -932,7 +932,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 # DO NOT CAHNGE CONFIG FOR GENERATING OTP CODES.
 class BaseOTPConfigManagerTestClass(TestCase):
-    def test_timer_counter_based_OTP1(self):
+    def test_timer_counter_based_OTP_1(self):
         # Checking timer_counter_based OTP generation and successful validation.
         UserModel = get_user_model()
         user = UserModel.objects.create(
@@ -977,7 +977,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    def test_timer_counter_based_OTP2(self):
+    def test_timer_counter_based_OTP_2(self):
         # Checking timer_counter_based OTP unsuccessful validation responses -- expired OTP.
         UserModel = get_user_model()
         user = UserModel.objects.create(
@@ -1003,7 +1003,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    def test_timer_counter_based_OTP3(self):
+    def test_timer_counter_based_OTP_3(self):
         # Checking timer_counter_based OTP unsuccessful validation responses -- too many tries.
         UserModel = get_user_model()
         user = UserModel.objects.create(
@@ -1030,8 +1030,8 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    def test_counter_based_OTP1(self):
-        # # Checking counter_based OTP.
+    def test_counter_based_OTP_1(self):
+        # Checking counter_based OTP.
         UserModel = get_user_model()
         user = UserModel.objects.create(
             first_name = 'test first_name',
@@ -1074,7 +1074,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    def test_counter_based_OTP2(self):
+    def test_counter_based_OTP_2(self):
         # # Checking counter_based OTP.
         UserModel = get_user_model()
         user = UserModel.objects.create(
@@ -1102,7 +1102,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    def test_timer_based_OTP1(self):
+    def test_timer_based_OTP_1(self):
         # # Checking counter_based OTP.
         UserModel = get_user_model()
         user = UserModel.objects.create(
@@ -1146,7 +1146,7 @@ class BaseOTPConfigManagerTestClass(TestCase):
 
 
 
-    def test_timer_based_OTP1(self):
+    def test_timer_based_OTP_1(self):
         # # Checking counter_based OTP.
         UserModel = get_user_model()
         user = UserModel.objects.create(

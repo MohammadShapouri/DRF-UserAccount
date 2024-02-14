@@ -30,31 +30,14 @@ from .serializers import (
                         verifyResetPasswordOTPSerializer,
                         UserAccountProfilePictureSerializer
                         )
+from .exceptions import (
+                        NoExistingUser,
+                        NoExistingOTPCodeObject,
+                        InactiveUser,
+                        NoExistingUserForProfilePhoto
+                        )
 # Create your views here.
 
-
-class NoExistingUser(APIException):
-    status_code = status.HTTP_404_NOT_FOUND
-    default_detail = {"detail": "No user account found."}
-    default_code = 'no user'
-
-
-class NoExistingOTPCodeObject(APIException):
-    status_code = status.HTTP_404_NOT_FOUND
-    default_detail = {'detail': "OTP code does not exist."}
-    default_code = 'no otp code object'
-
-
-class InactiveUser(APIException):
-    status_code = status.HTTP_403_FORBIDDEN
-    default_detail = {"detail": "Account is not active."}
-    default_code = 'inactive user'
-
-
-class NoExistingUserForProfilePhoto(APIException):
-    status_code = status.HTTP_403_FORBIDDEN
-    default_detail = {"detail": "No user account with this id added profile photo."}
-    default_code = 'inactive user'
 
 
 
@@ -117,7 +100,7 @@ class UserAccountViewSet(ModelViewSet, UserAccountOTPManager):
             return UserAccountDeletionSerializer
         else:
             return UserAccountRetrivalSerializer
-        return super().get_serializer_class()
+        # return super().get_serializer_class()
 
 
     def get_permissions(self):
@@ -210,18 +193,18 @@ class UserAccountChangePasswordView(GenericAPIView):
 class RequestResetPasswordOTP(GenericAPIView, UserAccountOTPManager):
     serializer_class = RequestResetPasswordOTPSerializer
     permission_classes = [AllowAny]
-    phoneNumber = None
+    phone_number = None
 
     def get_object(self):
         try:
-            return UserAccount.objects.get(Q(phone_number=self.phoneNumber) & Q(is_active=True) & Q(is_account_verified=True))
+            return UserAccount.objects.get(Q(phone_number=self.phone_number) & Q(is_account_verified=True) & (Q(is_active=True) | Q(is_active=False)))
         except UserAccount.DoesNotExist:
             return None
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.phoneNumber = serializer.validated_data['phone_number']
+        self.phone_number = serializer.validated_data['phone_number']
         userObject = self.get_object()
         # Only generates and sends OTP code to existing accounts which are active.
         if userObject != None:
@@ -274,7 +257,7 @@ class ResetPasswordView(GenericAPIView, ResetPasswordOTPManager):
 
 
 
-class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPManager):
+class RequestNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPManager):
     lookup_url_kwarg = 'userPK'
     permission_classes = [IsOwner]
 
@@ -287,7 +270,7 @@ class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPM
             raise NoExistingUser
     
         self.check_object_permissions(self.request, userObject)
-        if userObject.is_active == True and userObject.is_account_verified == True:
+        if userObject.is_active == True or userObject.is_account_verified == True:
             return userObject
         else:
             raise InactiveUser
@@ -300,7 +283,7 @@ class ResendNewNewPhoneNumberVerificationOTPView(GenericAPIView, UserAccountOTPM
             send_SMS.delay(OTP.otp)
             return Response({"detail": "New phone number verification OTP will be sent."}, status.HTTP_200_OK)
         else:
-            return Response({"detail": "You don't have new phone number to verify."}, status.HTTP_200_OK)
+            return Response({"detail": "You don't have new phone number to verify."}, status.HTTP_400_BAD_REQUEST)
 
 
 

@@ -8,7 +8,7 @@ class UserAccountOTPManager(BaseOTPManager):
     config = {
             'default_OTP_length': 8, 
             'default_max_possible_try': 5,
-            'default_expire_after': 120,
+            'default_expire_after': 600,
             'config_profiles': {
             'account_verification':{
                 'OTP_type': 'timer_counter_based',
@@ -21,11 +21,11 @@ class UserAccountOTPManager(BaseOTPManager):
             },
             'reset_password': {
                 'OTP_type': 'timer_counter_based',
-                'OTP_usage': 'Forgotten Password',
-                'expire_after': 600
+                'OTP_usage': 'Forgotten Password'
             }
             }
         }
+
 
 
 class UserAccountVerificationOTPManager(UserAccountOTPManager):
@@ -54,5 +54,5 @@ class UserAccountNewPhoneNumberVerificationOTPManager(UserAccountOTPManager):
 
 
 class ResetPasswordOTPManager(UserAccountOTPManager):
-    def afterValidationAction(self, user):
-       return True
+    def after_OTP_verification_action(self, user):
+       pass

@@ -9,7 +9,7 @@ from .models import UserAccount, UserAccountProfilePicture
 from .user_account_OTP_manager import UserAccountOTPManager
 from otp.utils.acceptable_OTP_values import least_acceptable_OTP_length, most_acceptable_OTP_length
 from extentions.regexValidators.phone_number_validator import PhoneNumberValidator
-from rest_framework import status
+from .exceptions import InactiveUser
 from .tasks import send_SMS
 
 
@@ -62,6 +62,9 @@ class UserAccountCreationSerializer(serializers.ModelSerializer):
             errors_dict['password'] = list(e.messages)
         if errors_dict:
             raise serializers.ValidationError(errors_dict)
+        
+        # if self.request.data.get('is_account_verified') == None or self.request.data.get('is_account_verified') == '':
+        #     attrs['is_account_verified'] = False
         return super().validate(attrs)
 
     def save(self, **kwargs):
@@ -78,14 +81,13 @@ class UserAccountUpdateSerializer(serializers.ModelSerializer):
         self.fields['pk'].read_only = True
         self.user = self.context.get('user')
         self.fields['confirm_password'] = serializers.CharField(style = {'input_type': 'password'}, label='Repeated Password', write_only=True)
-
+        self.fields['new_phone_number'].read_only = True
+        self.fields['is_new_phone_verified'].read_only = True
 
         if self.user.is_authenticated and self.user.is_superuser or self.user.is_staff:
             # 'groups' and 'user_permissions' are still not added.
-            fields = ['pk', 'first_name', 'last_name', 'phone_number', 'email', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'is_account_verified']
+            fields = ['pk', 'first_name', 'last_name', 'phone_number', 'email', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'is_account_verified', 'new_phone_number', 'is_new_phone_verified']
         else:
-            self.fields['new_phone_number'].read_only = True
-            self.fields['is_new_phone_verified'].read_only = True
             fields = ['pk', 'first_name', 'last_name', 'phone_number', 'email', 'new_phone_number', 'is_new_phone_verified']
 
         allowed = set(fields)
@@ -259,9 +261,8 @@ class ResetPasswordSerializer(serializers.Serializer, UserAccountOTPManager):
         else:
             raise serializers.ValidationError({'detail': "No OTP exists with this code."})
         
-        if self.user_object.is_active == False and self.user_object.is_account_verified == False:
-            raise serializers.ValidationError({'detail': "Account is not active."}, status.HTTP_403_FORBIDDEN)
-
+        if self.user_object.is_active == False and self.user_object.is_account_verified == True:
+            raise InactiveUser()
 
 
         # Get passwords from data.

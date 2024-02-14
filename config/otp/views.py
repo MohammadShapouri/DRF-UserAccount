@@ -5,6 +5,7 @@ from .models import OTPCode
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
+from .permissions import IsOwnerOfOTPCode
 # Create your views here.
 
 UserModel = get_user_model()
@@ -19,7 +20,7 @@ class VerifyUserAccountVerificationOTPView(GenericAPIView):
     serializer_class = OTPVerifierSerializer
     queryset = OTPCode.objects.all()
     lookup_field = 'user__pk'
-    lookup_url_kwarg = 'userPk'
+    lookup_url_kwarg = 'userPK'
 
     validated_data = None
     OTP_code_object = None
@@ -47,11 +48,11 @@ class VerifyNewPhoneNumberVerificationOTPView(GenericAPIView):
     Also inherit your customized OTPManager (or default one if you use default OTPManager) and
     override OTPVerifier and return verify_OTP methods in it to make it usable.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsOwnerOfOTPCode]
     serializer_class = OTPVerifierSerializer
     queryset = OTPCode.objects.all()
     lookup_field = 'user__pk'
-    lookup_url_kwarg = 'userPk'
+    lookup_url_kwarg = 'userPK'
 
     validated_data = None
     OTP_code_object = None
