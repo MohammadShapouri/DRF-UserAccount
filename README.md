@@ -8,38 +8,38 @@ https://github.com/MohammadShapouri/Dockerized-DRF-UserAccount
 
 
 ## Features
-* A customizable OTP module for generating and verifing OTP codes and OTP configs.
+* A customizable OTP module for generating and verifying OTP codes and OTP configs.
 * A module for generation and validating OTP configs.
-* Creating, retriving, updating and deleting user account.
-* Changing password and reseting password.
-* Adding, retriving, updating (setting default profile picture) and deleting profile pictures.
+* Creating, retrieving, updating, and deleting user accounts.
+* Changing password and resetting password.
+* Adding, retrieving, updating (setting default profile picture) and deleting profile pictures.
 * Using celery for running tasks asynchronously.
-* Different access level and responses based on the user account type which sends request. (Sperusers and staffs have the same access level as superusers in
-  django admin panel.)
+* Different access levels and responses based on the user account type that sends requests. (Sperusers and staffs have the same access level as superusers in
+  Django admin panel.)
 * Sends OTP code for validating new accounts.
-* Sends OTP code for validating new phone numbers if phone number was changed during update.
+* Sends OTP code for validating new phone numbers if the phone number was changed during the update.
 
 
 
 ## Installation
 __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_python -m_' and _python_' in commands.__
-* Run the following command in your teminal to clone this project or download it directly.
+* Run the following command in your terminal to clone this project or download it directly.
     ```
     $ git clone git@github.com:MohammadShapouri/DRF-UserAccount.git
     ```
-* Install redis and postgresql.
+* Install Redis and PostgreSQL.
 
 * Navigate to the project folder (DRF-UserAccount folder).
 
-* Create a .env file and fill it. (.env.sample is a sample file which shows which fields should .env file have.)
+* Create a .env file and fill it. (.env.sample is a sample file that shows which fields the .env file have.)
 
-* Run the following command to create virtualenv. (If you haven't install virtualenv package, you need to install virtualenv package first).
+* Run the following command to create virtualenv. (If you haven't installed virtualenv package, you need to install virtualenv package first).
     ```
     $ python3 -m virtualenv venv
     ```
 
 * Activate virtualenv.
-    > Run the following command in linux
+    > Run the following command in Linux
     ```
     $ source venv/bin/activate
     ```
@@ -49,12 +49,12 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     ```
 
 
-* Run the following command to install required frameworks and packages.
+* Run the following command to install the required frameworks and packages.
     ```
     $ pip install -r requirements.txt
     ```
 
-* Navigate to config folder.
+* Navigate to the config folder.
 
 * Run the following commands one by one to run the project.
     ```
@@ -63,19 +63,19 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
     $ python3 manage.py runserver
     ```
 
-* Run the following command in the folder which contains manage.py to run celery.
+* Run the following command in the folder that contains manage.py to run celery.
   ```
     python -m celery -A config worker -l info
 
   ```
 
 
-# Things to do in future
-* ~~Dockerizing project. (Though it must be Dockerized after creating project.)~~ _Done! Dockerized version is in another repository._
-* ~~Adding profile picture IDs to user object data in get method.~~ _Done!_
-* Adding api for sending sms.
+# Things to do in the future
+* ~~Dockerizing project. (Though it must be Dockerized after creating the project.)~~ _Done! Dockerized version is in another repository._
+* ~~Adding profile picture IDs to user object data in the get method.~~ _Done!_
+* Adding API for sending SMS.
 * ~~using celery for sending sms.~~ _Done!_
 * Writing test cases.
 * ~~Adding change password and reset password view.~~ _Done!_
-* Customizing django admin panel.
+* Customizing Django admin panel.
 
