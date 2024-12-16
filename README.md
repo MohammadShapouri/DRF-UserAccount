@@ -78,4 +78,4 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
 * Writing test cases.
 * ~~Adding change password and reset password view.~~ _Done!_
 * Customizing Django admin panel.
-
+* HASHING OTP CODES!!!
