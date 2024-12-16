@@ -9,7 +9,7 @@ https://github.com/MohammadShapouri/Dockerized-DRF-UserAccount
 
 ## Features
 * A customizable OTP module for generating and verifying OTP codes and OTP configs.
-* A module for generation and validating OTP configs.
+* A module for generating and validating OTP configs.
 * Creating, retrieving, updating, and deleting user accounts.
 * Changing password and resetting password.
 * Adding, retrieving, updating (setting default profile picture) and deleting profile pictures.
