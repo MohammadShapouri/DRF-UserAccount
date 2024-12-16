@@ -71,6 +71,7 @@ __If you use windows, instead of using '_python3 -m_' and '_python3_', use '_pyt
 
 
 # Things to do in the future
+* Saving OTP configs in DB and optimizing its app usage.
 * ~~Dockerizing project. (Though it must be Dockerized after creating the project.)~~ _Done! Dockerized version is in another repository but it still needs some changes. (files in app folder are older than these files.)._
 * ~~Adding profile picture IDs to user object data in the get method.~~ _Done!_
 * Adding API for sending SMS.
