@@ -27,9 +27,14 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    path('api/', include('userAccount.urls')),
+    path('api/', include('useraccount.urls')),
     # path('api/otp/', include('otp.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+
+
+from otp.models import OTPTypeSetting
+
+OTPTypeSetting.objects.define_settings()

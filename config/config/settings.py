@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG')
+DEBUG = config('DEBUG', cast=bool, default=False)
 
 # ALLOWED_HOSTS = []
 # CSRF_TRUSTED_ORIGINS = []
@@ -34,7 +34,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(" ")
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS').split(" ")
 
 
-AUTH_USER_MODEL = 'userAccount.UserAccount'
+AUTH_USER_MODEL = 'useraccount.UserAccount'
 
 # Application definition
 
@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'extentions',
-    'userAccount.apps.UseraccountConfig',
+    'useraccount.apps.UseraccountConfig',
     'otp.apps.OtpConfig',
 ]
 
@@ -176,7 +176,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=6*30),
     "UPDATE_LAST_LOGIN": True,
-    "TOKEN_OBTAIN_SERIALIZER": "userAccount.serializers.CustomTokenObtainPairSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "useraccount.serializers.generalserializer.serializers.CustomTokenObtainPairSerializer",
 }
 
 
