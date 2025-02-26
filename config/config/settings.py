@@ -184,3 +184,14 @@ SIMPLE_JWT = {
 # Celery Config
 CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+
+
+
+# OTP_USAGE_CHOICES = (
+#             ('activate_account', 'Account Activation OTP'),
+#             ('verify_login', 'Login Verification OTP'),
+#             ('reset_password', 'Password Reset OTP'),
+#             ('update_account', 'Account Update Verification OTP'),
+#             ('delete_account', 'Account Delete Verification OTP'),
+#             ('general_verification', 'General Verification (For Shopping, etc...)'),
+#         )

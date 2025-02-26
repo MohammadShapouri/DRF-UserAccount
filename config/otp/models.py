@@ -10,13 +10,13 @@ import random
 
 class OTPTypeSettingManager(models.Manager):
     def delete_invalid_records(self):
+        otp_type_availability_dict = {'timer_counter_based': False, 'counter_based': False, 'timer_based': False}
         try:
-            for type in ['timer_counter_based', 'counter_based', 'timer_based']:
-                qs = OTPTypeSetting.objects.filter(otp_type=type).order_by('creation_date')
-                if len(qs) > 1:
-                    for i in range(len(qs)):
-                       if i != 0:
-                        qs[i].delete()
+            for each_otp_type_setting in OTPTypeSetting.objects.all():
+                if each_otp_type_setting.otp_type in list(otp_type_availability_dict.keys()) and otp_type_availability_dict[each_otp_type_setting.otp_type] == False:
+                    otp_type_availability_dict[each_otp_type_setting.otp_type] = True
+                else:
+                    each_otp_type_setting.delete()
         except OperationalError as e:
             if settings.DEBUG == True:
                 raise e
@@ -32,9 +32,9 @@ class OTPTypeSettingManager(models.Manager):
 
     def create_otp_types(self):
         try:
-            otp_type_count = OTPTypeSetting.objects.all()
+            otp_type_setting = OTPTypeSetting.objects.all()
 
-            if len(otp_type_count) == 0:
+            if len(otp_type_setting) == 0:
                 OTPTypeSetting.objects.bulk_create(
                     [
                         OTPTypeSetting(otp_type='timer_counter_based', max_attempt_count=3, expire_after=180),
@@ -43,12 +43,19 @@ class OTPTypeSettingManager(models.Manager):
                     ]
                 )
             else:
-                if len(OTPTypeSetting.objects.filter(otp_type='timer_counter_based')) == 0:
-                    OTPTypeSetting.objects.create(otp_type='timer_counter_based', max_attempt_count=3, expire_after=180)
-                elif len(OTPTypeSetting.objects.filter(otp_type='counter_based')) == 0:
-                    OTPTypeSetting.objects.create(otp_type='counter_based', max_attempt_count=3, expire_after=0)
-                elif len(OTPTypeSetting.objects.filter(otp_type='timer_based')) == 0:
-                    OTPTypeSetting.objects.create(otp_type='timer_based', max_attempt_count=0, expire_after=180)
+                otp_type_availability_dict = {'timer_counter_based': False, 'counter_based': False, 'timer_based': False}
+                for each_otp_type_setting in otp_type_setting:
+                    if each_otp_type_setting.otp_type in list(otp_type_availability_dict.keys()) and otp_type_availability_dict[each_otp_type_setting.otp_type] == False:
+                        otp_type_availability_dict[each_otp_type_setting.otp_type] = True
+                
+                for key, value in otp_type_availability_dict.items():
+                    if value == False:
+                        if key == 'timer_counter_based':
+                            OTPTypeSetting.objects.create(otp_type='timer_counter_based', max_attempt_count=3, expire_after=180)
+                        elif key == 'counter_based':
+                            OTPTypeSetting.objects.create(otp_type='counter_based', max_attempt_count=3, expire_after=0)
+                        elif key == 'timer_based':
+                            OTPTypeSetting.objects.create(otp_type='timer_based', max_attempt_count=0, expire_after=180)
         except OperationalError as e:
             if settings.DEBUG == True:
                 raise e
@@ -99,21 +106,25 @@ class OTPCodeManager(models.Manager):
     def create_otp(self, otp_type_setting, otp_usage, otp_length=5):
         allowedChars = string.digits
         otp_code = ''.join(random.choices(allowedChars, k=otp_length))
-        print('********otp*******', otp_code)
         otp_obj = OTPCode.objects.create(otp_code=sha256(str(otp_code).encode('utf-8')).hexdigest(), otp_usage=otp_usage, otp_type_setting=otp_type_setting)
         return otp_code, otp_obj
 
+def define_otp_usage_choices():
+    try:
+        return settings.OTP_USAGE_CHOICES
+    except AttributeError:
+        return (
+            ('activate_account', 'Account Activation OTP'),
+            ('verify_login', 'Login Verification OTP'),
+            ('reset_password', 'Password Reset OTP'),
+            ('update_account', 'Account Update Verification OTP'),
+            ('delete_account', 'Account Delete Verification OTP'),
+            ('general_verification', 'General Verification (For Shopping, etc...)'),
+        )
+
 class OTPCode(models.Model):
-    OTP_USAGE_CHOICES = (
-        ('activate_account', 'Account Activation OTP'),
-        ('verify_login', 'Login Verification OTP'),
-        ('reset_password', 'Password Reset OTP'),
-        ('update_account', 'Account Update Verification OTP'),
-        ('delete_account', 'Account Delete Verification OTP'),
-        ('general_verification', 'General Verification (For Shopping, etc...)'),
-    )
     otp_code            = models.CharField(max_length=200, blank=False, null=False, verbose_name='One Time Password Code')
-    otp_usage           = models.CharField(choices=OTP_USAGE_CHOICES, max_length=20, blank=False, null=False, verbose_name='OTP Usage')
+    otp_usage           = models.CharField(choices=define_otp_usage_choices(), max_length=20, blank=False, null=False, verbose_name='OTP Usage')
     otp_type_setting    = models.ForeignKey('OTPTypeSetting', blank=False, null=False, on_delete=models.CASCADE, verbose_name="OTP Type and Setting")
     otp_creation_date   = models.DateTimeField(auto_now_add=True, verbose_name='OTP Code Creation Date')
     attempt_counter     = models.PositiveIntegerField(default=0, verbose_name='Number of Attempts')
@@ -178,8 +189,8 @@ class OTPCode(models.Model):
                     else:
                         return False, 'max_attempt_exceeded', None
                 elif self.otp_type_setting.otp_type == 'timer_counter_based':
-                    if self.has_time:
-                        if self.can_attempt:
+                    if self.has_time():
+                        if self.can_attempt():
                             if self.otp_code == sha256(otp_code.encode('utf-8')).hexdigest():
                                 if delete_otp_object:
                                     self.delete()
